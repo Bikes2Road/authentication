@@ -30,3 +30,10 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Build artifacts
+bin/
+main
+
+# Swagger generated docs (optional - remove if you want to commit them)
+# docs/

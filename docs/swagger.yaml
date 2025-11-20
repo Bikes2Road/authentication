@@ -1,0 +1,253 @@
+basePath: /api/v1
+definitions:
+  github_com_bikes2road_authentication_internal_domain.JWTClaims:
+    properties:
+      aud:
+        description: the `aud` (Audience) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.3
+        items:
+          type: string
+        type: array
+      email:
+        type: string
+      exp:
+        allOf:
+        - $ref: '#/definitions/jwt.NumericDate'
+        description: the `exp` (Expiration Time) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
+      first_name:
+        type: string
+      iat:
+        allOf:
+        - $ref: '#/definitions/jwt.NumericDate'
+        description: the `iat` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
+      iss:
+        description: the `iss` (Issuer) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.1
+        type: string
+      jti:
+        description: the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7
+        type: string
+      last_name:
+        type: string
+      nbf:
+        allOf:
+        - $ref: '#/definitions/jwt.NumericDate'
+        description: the `nbf` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5
+      sub:
+        description: the `sub` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_bikes2road_authentication_internal_domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_bikes2road_authentication_internal_domain.LoginResponse:
+    properties:
+      tokens:
+        $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.TokenPair'
+      user:
+        $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.UserInfo'
+    type: object
+  github_com_bikes2road_authentication_internal_domain.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_bikes2road_authentication_internal_domain.RefreshResponse:
+    properties:
+      tokens:
+        $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.TokenPair'
+    type: object
+  github_com_bikes2road_authentication_internal_domain.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        description: Segundos hasta expiración
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  github_com_bikes2road_authentication_internal_domain.UserInfo:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+  github_com_bikes2road_authentication_internal_domain.ValidateRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  github_com_bikes2road_authentication_internal_domain.ValidateResponse:
+    properties:
+      claims:
+        $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.JWTClaims'
+      valid:
+        type: boolean
+    type: object
+  internal_adapters_http.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_adapters_http.HealthResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  jwt.NumericDate:
+    properties:
+      time.Time:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@bikes2road.com
+    name: API Support
+  description: Microservicio de autenticación para validar y crear JWT tokens
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Bikes2Road Authentication API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica un usuario con email y password, retorna tokens JWT
+      parameters:
+      - description: Credenciales de login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login exitoso
+          schema:
+            $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.LoginResponse'
+        "400":
+          description: Request inválido
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "401":
+          description: Credenciales inválidas
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+      summary: Login de usuario
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Genera un nuevo par de tokens usando un refresh token válido
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens refrescados
+          schema:
+            $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.RefreshResponse'
+        "400":
+          description: Request inválido
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "401":
+          description: Token inválido o expirado
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+      summary: Refrescar token JWT
+      tags:
+      - auth
+  /auth/validate:
+    post:
+      consumes:
+      - application/json
+      description: Valida un token JWT y retorna sus claims si es válido
+      parameters:
+      - description: Token a validar
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.ValidateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token validado
+          schema:
+            $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.ValidateResponse'
+        "400":
+          description: Request inválido
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+      summary: Validar token JWT
+      tags:
+      - auth
+  /health:
+    get:
+      description: Verifica que el servicio esté funcionando
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Servicio funcionando correctamente
+          schema:
+            $ref: '#/definitions/internal_adapters_http.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
