@@ -6,7 +6,6 @@ import (
 
 	"github.com/bikes2road/authentication/internal/domain"
 	"github.com/bikes2road/authentication/internal/ports"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type authService struct {
@@ -25,22 +24,12 @@ func NewAuthService(jwtService ports.JWTService, userServiceClient ports.UserSer
 // Login autentica un usuario y genera tokens JWT
 func (s *authService) Login(ctx context.Context, email, password string) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
-	user, err := s.userServiceClient.GetUserByEmail(ctx, email)
+	user, err := s.userServiceClient.GetUserByEmail(ctx, email, password)
 	if err != nil {
 		if err == domain.ErrUserNotFound {
-			return nil, domain.ErrInvalidCredentials
+			return nil, domain.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
-	}
-
-	// Verificar que el usuario esté activo
-	if !user.IsActive {
-		return nil, domain.ErrUserInactive
-	}
-
-	// Verificar password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, domain.ErrInvalidCredentials
 	}
 
 	// Generar tokens
@@ -52,10 +41,8 @@ func (s *authService) Login(ctx context.Context, email, password string) (*domai
 	// Construir respuesta
 	response := &domain.LoginResponse{
 		User: &domain.UserInfo{
-			ID:        user.ID,
-			Email:     user.Email,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
+			ID:    user.ID,
+			Email: user.Email,
 		},
 		Tokens: tokens,
 	}

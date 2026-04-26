@@ -8,8 +8,6 @@ import (
 	"github.com/bikes2road/authentication/cmd/api/container"
 
 	_ "github.com/bikes2road/authentication/docs"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title           Bikes2Road Authentication API
@@ -39,9 +37,6 @@ func main() {
 
 	// Crear container con dependencias
 	c := container.New(cfg)
-
-	// Configurar Swagger
-	c.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Iniciar servidor
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)

@@ -37,7 +37,7 @@ func Load() (*Config, error) {
 	config := &Config{
 		Server: ServerConfig{
 			Port: getEnv("PORT", "8084"),
-			Host: getEnv("HOST", "0.0.0.0"),
+			Host: getEnv("SERVER_HOST", "0.0.0.0"),
 		},
 		JWT: JWTConfig{
 			SecretKey:              getEnv("JWT_SECRET_KEY", ""),

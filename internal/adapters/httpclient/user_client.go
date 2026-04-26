@@ -1,11 +1,12 @@
 package httpclient
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/bikes2road/authentication/internal/domain"
@@ -28,20 +29,33 @@ func NewUserServiceClient(baseURL string) ports.UserServiceClient {
 }
 
 // GetUserByEmail obtiene un usuario por su email desde el servicio de usuarios
-func (c *userServiceClient) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	// URL encode del email
-	encodedEmail := url.QueryEscape(email)
-	endpoint := fmt.Sprintf("%s/api/v1/users/email/%s", c.baseURL, encodedEmail)
+func (c *userServiceClient) GetUserByEmail(ctx context.Context, email, password string) (*domain.User, error) {
+	endpoint := fmt.Sprintf("%s/api/v1/users/verify-credentials", c.baseURL)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	requestBody := struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{
+		Email:    email,
+		Password: password,
+	}
+
+	body, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
+		log.Println(err)
 		return nil, domain.ErrUserServiceUnavailable
 	}
 	defer resp.Body.Close()

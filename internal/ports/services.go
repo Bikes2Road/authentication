@@ -22,6 +22,6 @@ type JWTService interface {
 
 // UserServiceClient define la interfaz para el cliente del servicio de usuarios
 type UserServiceClient interface {
-	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserByEmail(ctx context.Context, email, password string) (*domain.User, error)
 	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 }
