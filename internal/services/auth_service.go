@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/bikes2road/authentication/internal/domain"
@@ -26,8 +27,11 @@ func (s *authService) Login(ctx context.Context, email, password string) (*domai
 	// Obtener usuario del servicio de usuarios
 	user, err := s.userServiceClient.GetUserByEmail(ctx, email, password)
 	if err != nil {
-		if err == domain.ErrUserNotFound {
+		if errors.Is(err, domain.ErrUserNotFound) {
 			return nil, domain.ErrUserNotFound
+		}
+		if errors.Is(err, domain.ErrInvalidCredentials) {
+			return nil, domain.ErrInvalidCredentials
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}

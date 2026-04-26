@@ -64,6 +64,10 @@ func (c *userServiceClient) GetUserByEmail(ctx context.Context, email, password 
 		return nil, domain.ErrUserNotFound
 	}
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, domain.ErrInvalidCredentials
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
