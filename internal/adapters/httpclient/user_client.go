@@ -30,7 +30,7 @@ func NewUserServiceClient(baseURL string) ports.UserServiceClient {
 
 // GetUserByEmail obtiene un usuario por su email desde el servicio de usuarios
 func (c *userServiceClient) GetUserByEmail(ctx context.Context, email, password string) (*domain.User, error) {
-	endpoint := fmt.Sprintf("%s/api/v1/users/verify-credentials", c.baseURL)
+	endpoint := fmt.Sprintf("%s/v1/verify-credentials", c.baseURL)
 
 	requestBody := struct {
 		Email    string `json:"email"`
@@ -82,7 +82,7 @@ func (c *userServiceClient) GetUserByEmail(ctx context.Context, email, password 
 
 // GetUserByID obtiene un usuario por su ID desde el servicio de usuarios
 func (c *userServiceClient) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
-	endpoint := fmt.Sprintf("%s/api/v1/users/%s", c.baseURL, id)
+	endpoint := fmt.Sprintf("%s/v1/%s", c.baseURL, id)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
