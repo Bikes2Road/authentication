@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api/auth/v1
 definitions:
   github_com_bikes2road_authentication_internal_domain.JWTClaims:
     properties:
@@ -13,8 +13,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
         description: the `exp` (Expiration Time) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
-      first_name:
-        type: string
       iat:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
@@ -24,8 +22,6 @@ definitions:
         type: string
       jti:
         description: the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7
-        type: string
-      last_name:
         type: string
       nbf:
         allOf:

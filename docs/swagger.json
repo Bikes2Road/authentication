@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "basePath": "/api/v1",
+    "basePath": "/api/auth/v1",
     "paths": {
         "/auth/login": {
             "post": {
@@ -209,9 +209,6 @@
                         }
                     ]
                 },
-                "first_name": {
-                    "type": "string"
-                },
                 "iat": {
                     "description": "the `iat` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6",
                     "allOf": [
@@ -226,9 +223,6 @@
                 },
                 "jti": {
                     "description": "the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7",
-                    "type": "string"
-                },
-                "last_name": {
                     "type": "string"
                 },
                 "nbf": {

@@ -216,9 +216,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "first_name": {
-                    "type": "string"
-                },
                 "iat": {
                     "description": "the ` + "`" + `iat` + "`" + ` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6",
                     "allOf": [
@@ -233,9 +230,6 @@ const docTemplate = `{
                 },
                 "jti": {
                     "description": "the ` + "`" + `jti` + "`" + ` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7",
-                    "type": "string"
-                },
-                "last_name": {
                     "type": "string"
                 },
                 "nbf": {
@@ -400,12 +394,14 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/api/v1",
+	BasePath:         "/api/auth/v1",
 	Schemes:          []string{},
 	Title:            "Bikes2Road Authentication API",
 	Description:      "Microservicio de autenticación para validar y crear JWT tokens",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
