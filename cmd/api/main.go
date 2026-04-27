@@ -41,7 +41,7 @@ func main() {
 	// Iniciar servidor
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	log.Printf("Starting authentication service on %s", addr)
-	log.Printf("Swagger documentation available at http://%s/swagger/index.html", addr)
+	log.Printf("Swagger documentation available at http://%s/api/auth/v1/swagger/index.html", addr)
 
 	if err := c.Router.Run(addr); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

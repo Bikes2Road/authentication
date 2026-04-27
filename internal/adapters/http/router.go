@@ -18,17 +18,14 @@ func SetupRouter(authHandler ports.AuthHandler, healthHandler ports.HealthHandle
 
 	// Health check endpoint
 	router.GET("/health", healthHandler.Health)
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 routes
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("/v1")
 	{
-		auth := v1.Group("/auth")
-		{
-			auth.POST("/login", authHandler.Login)
-			auth.POST("/validate", authHandler.Validate)
-			auth.POST("/refresh", authHandler.Refresh)
-		}
+		v1.POST("/login", authHandler.Login)
+		v1.POST("/validate", authHandler.Validate)
+		v1.POST("/refresh", authHandler.Refresh)
+		v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	return router

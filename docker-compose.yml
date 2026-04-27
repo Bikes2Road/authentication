@@ -1,0 +1,26 @@
+services:
+  authentication:
+    build: .
+    container_name: authentication
+    ports:
+      - "${PORT}:8080"
+    environment:
+      - PORT=8080
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - USERS_SERVICE_URL=${USERS_SERVICE_URL}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.auth.rule: "Host(`dev-api.bikes2road.com`) && PathPrefix(`/api/auth`)"
+      traefik.http.routers.auth.entrypoints: "web,websecure"
+      traefik.http.routers.auth.tls: "true"
+      traefik.http.routers.auth.tls.certresolver: "letsencrypt"
+      traefik.http.services.auth.loadbalancer.server.port: "8080"
+      traefik.http.middlewares.auth-strip.stripprefix.prefixes: "/api/auth"
+      traefik.http.routers.auth.middlewares: "auth-strip"
+
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true

@@ -11,7 +11,7 @@ import (
 func CORS() gin.HandlerFunc {
 	config := cors.DefaultConfig()
 	// Permitir todos los orígenes en desarrollo (ajustar en producción usando variables de entorno u orígenes específicos)
-	config.AllowAllOrigins = true
+	config.AllowOrigins = []string{"*"}
 	// Permitir los métodos comunes
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 	// Permitir las cabeceras comunes
