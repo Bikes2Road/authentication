@@ -129,7 +129,20 @@ info:
   title: Bikes2Road Authentication API
   version: "1.0"
 paths:
-  /auth/login:
+  /health:
+    get:
+      description: Verifica que el servicio esté funcionando
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Servicio funcionando correctamente
+          schema:
+            $ref: '#/definitions/internal_adapters_http.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+  /login:
     post:
       consumes:
       - application/json
@@ -163,7 +176,7 @@ paths:
       summary: Login de usuario
       tags:
       - auth
-  /auth/refresh:
+  /refresh:
     post:
       consumes:
       - application/json
@@ -197,7 +210,7 @@ paths:
       summary: Refrescar token JWT
       tags:
       - auth
-  /auth/validate:
+  /validate:
     post:
       consumes:
       - application/json
@@ -227,19 +240,6 @@ paths:
       summary: Validar token JWT
       tags:
       - auth
-  /health:
-    get:
-      description: Verifica que el servicio esté funcionando
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Servicio funcionando correctamente
-          schema:
-            $ref: '#/definitions/internal_adapters_http.HealthResponse'
-      summary: Health check
-      tags:
-      - health
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

@@ -23,7 +23,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/health": {
+            "get": {
+                "description": "Verifica que el servicio esté funcionando",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Servicio funcionando correctamente",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
             "post": {
                 "description": "Autentica un usuario con email y password, retorna tokens JWT",
                 "consumes": [
@@ -75,7 +95,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh": {
+        "/refresh": {
             "post": {
                 "description": "Genera un nuevo par de tokens usando un refresh token válido",
                 "consumes": [
@@ -127,7 +147,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/validate": {
+        "/validate": {
             "post": {
                 "description": "Valida un token JWT y retorna sus claims si es válido",
                 "consumes": [
@@ -168,26 +188,6 @@ const docTemplate = `{
                         "description": "Error interno del servidor",
                         "schema": {
                             "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/health": {
-            "get": {
-                "description": "Verifica que el servicio esté funcionando",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "Servicio funcionando correctamente",
-                        "schema": {
-                            "$ref": "#/definitions/internal_adapters_http.HealthResponse"
                         }
                     }
                 }

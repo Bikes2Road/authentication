@@ -31,7 +31,7 @@ func NewAuthHandler(authService ports.AuthService) ports.AuthHandler {
 // @Failure      400 {object} ErrorResponse "Request inválido"
 // @Failure      401 {object} ErrorResponse "Credenciales inválidas"
 // @Failure      500 {object} ErrorResponse "Error interno del servidor"
-// @Router       /auth/login [post]
+// @Router       /login [post]
 func (h *authHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,7 +61,7 @@ func (h *authHandler) Login(c *gin.Context) {
 // @Success      200 {object} domain.ValidateResponse "Token validado"
 // @Failure      400 {object} ErrorResponse "Request inválido"
 // @Failure      500 {object} ErrorResponse "Error interno del servidor"
-// @Router       /auth/validate [post]
+// @Router       /validate [post]
 func (h *authHandler) Validate(c *gin.Context) {
 	var req domain.ValidateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -92,7 +92,7 @@ func (h *authHandler) Validate(c *gin.Context) {
 // @Failure      400 {object} ErrorResponse "Request inválido"
 // @Failure      401 {object} ErrorResponse "Token inválido o expirado"
 // @Failure      500 {object} ErrorResponse "Error interno del servidor"
-// @Router       /auth/refresh [post]
+// @Router       /refresh [post]
 func (h *authHandler) Refresh(c *gin.Context) {
 	var req domain.RefreshRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
