@@ -29,15 +29,15 @@ func NewUserServiceClient(baseURL string) ports.UserServiceClient {
 }
 
 // GetUserByEmail obtiene un usuario por su email desde el servicio de usuarios
-func (c *userServiceClient) GetUserByEmail(ctx context.Context, email, password string) (*domain.User, error) {
+func (c *userServiceClient) GetUserByEmailOrNickName(ctx context.Context, emailOrNickName, password string) (*domain.User, error) {
 	endpoint := fmt.Sprintf("%s/v1/verify-credentials", c.baseURL)
 
 	requestBody := struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		EmailOrNickName string `json:"email_or_nick_name"`
+		Password        string `json:"password"`
 	}{
-		Email:    email,
-		Password: password,
+		EmailOrNickName: emailOrNickName,
+		Password:        password,
 	}
 
 	body, err := json.Marshal(requestBody)

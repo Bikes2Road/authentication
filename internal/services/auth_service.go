@@ -23,9 +23,9 @@ func NewAuthService(jwtService ports.JWTService, userServiceClient ports.UserSer
 }
 
 // Login autentica un usuario y genera tokens JWT
-func (s *authService) Login(ctx context.Context, email, password string) (*domain.LoginResponse, error) {
+func (s *authService) Login(ctx context.Context, emailOrNickName, password string) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
-	user, err := s.userServiceClient.GetUserByEmail(ctx, email, password)
+	user, err := s.userServiceClient.GetUserByEmailOrNickName(ctx, emailOrNickName, password)
 	if err != nil {
 		if errors.Is(err, domain.ErrUserNotFound) {
 			return nil, domain.ErrUserNotFound

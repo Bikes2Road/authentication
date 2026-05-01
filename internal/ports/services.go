@@ -8,7 +8,7 @@ import (
 
 // AuthService define la interfaz para el servicio de autenticación
 type AuthService interface {
-	Login(ctx context.Context, email, password string) (*domain.LoginResponse, error)
+	Login(ctx context.Context, emailOrNickName, password string) (*domain.LoginResponse, error)
 	ValidateToken(ctx context.Context, token string) (*domain.ValidateResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.RefreshResponse, error)
 }
@@ -22,6 +22,6 @@ type JWTService interface {
 
 // UserServiceClient define la interfaz para el cliente del servicio de usuarios
 type UserServiceClient interface {
-	GetUserByEmail(ctx context.Context, email, password string) (*domain.User, error)
+	GetUserByEmailOrNickName(ctx context.Context, emailOrNickName, password string) (*domain.User, error)
 	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 }
