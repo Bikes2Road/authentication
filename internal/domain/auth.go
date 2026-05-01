@@ -2,8 +2,8 @@ package domain
 
 // LoginRequest representa la solicitud de login
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	EmailOrNickName string `json:"email_or_nick_name" binding:"required" example:"[EMAIL_ADDRESS] | johndoe"`
+	Password        string `json:"password" binding:"required,min=6" example:"T3st123@"`
 }
 
 // LoginResponse representa la respuesta exitosa de login
