@@ -45,8 +45,9 @@ func (s *authService) Login(ctx context.Context, email, password string) (*domai
 	// Construir respuesta
 	response := &domain.LoginResponse{
 		User: &domain.UserInfo{
-			ID:    user.ID,
-			Email: user.Email,
+			ID:       user.ID,
+			Email:    user.Email,
+			NickName: user.NickName,
 		},
 		Tokens: tokens,
 	}

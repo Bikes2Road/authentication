@@ -18,6 +18,7 @@ type UserInfo struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	NickName  string `json:"nick_name"`
 }
 
 // ValidateRequest representa la solicitud de validación de token
