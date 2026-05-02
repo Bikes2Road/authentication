@@ -8,6 +8,8 @@ services:
       - PORT=8080
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - USERS_SERVICE_URL=${USERS_SERVICE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_API_KEY=${SUPABASE_API_KEY}
     labels:
       traefik.enable: "true"
       traefik.http.routers.auth.rule: "Host(`dev-api.bikes2road.com`) && PathPrefix(`/api/auth`)"
