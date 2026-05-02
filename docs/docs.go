@@ -252,16 +252,18 @@ const docTemplate = `{
         "github_com_bikes2road_authentication_internal_domain.LoginRequest": {
             "type": "object",
             "required": [
-                "email",
+                "email_or_nick_name",
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
+                "email_or_nick_name": {
+                    "type": "string",
+                    "example": "[EMAIL_ADDRESS] | johndoe"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "T3st123@"
                 }
             }
         },
@@ -326,6 +328,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "last_name": {
+                    "type": "string"
+                },
+                "nick_name": {
                     "type": "string"
                 }
             }
