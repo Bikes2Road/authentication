@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/bikes2road/authentication/internal/domain"
@@ -10,30 +9,24 @@ import (
 )
 
 type authService struct {
-	jwtService        ports.JWTService
-	userServiceClient ports.UserServiceClient
+	jwtService  ports.JWTService
+	userService ports.UserService
 }
 
 // NewAuthService crea una nueva instancia del servicio de autenticación
-func NewAuthService(jwtService ports.JWTService, userServiceClient ports.UserServiceClient) ports.AuthService {
+func NewAuthService(jwtService ports.JWTService, userService ports.UserService) ports.AuthService {
 	return &authService{
-		jwtService:        jwtService,
-		userServiceClient: userServiceClient,
+		jwtService:  jwtService,
+		userService: userService,
 	}
 }
 
 // Login autentica un usuario y genera tokens JWT
-func (s *authService) Login(ctx context.Context, emailOrNickName, password string) (*domain.LoginResponse, error) {
+func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
-	user, err := s.userServiceClient.GetUserByEmailOrNickName(ctx, emailOrNickName, password)
+	user, err := s.userService.VerifyUser(ctx, req)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserNotFound) {
-			return nil, domain.ErrUserNotFound
-		}
-		if errors.Is(err, domain.ErrInvalidCredentials) {
-			return nil, domain.ErrInvalidCredentials
-		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
 
 	// Generar tokens
@@ -82,7 +75,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*d
 	}
 
 	// Obtener usuario actualizado del servicio de usuarios
-	user, err := s.userServiceClient.GetUserByID(ctx, claims.UserID)
+	user, err := s.userService.GetUserByEmailOrNickName(ctx, claims.NickName)
 	if err != nil {
 		if err == domain.ErrUserNotFound {
 			return nil, domain.ErrInvalidToken

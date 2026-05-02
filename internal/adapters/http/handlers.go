@@ -42,7 +42,10 @@ func (h *authHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response, err := h.authService.Login(c.Request.Context(), req.EmailOrNickName, req.Password)
+	response, err := h.authService.Login(c.Request.Context(), ports.VerifyUserRequest{
+		EmailOrNickName: req.EmailOrNickName,
+		Password:        req.Password,
+	})
 	if err != nil {
 		h.handleError(c, err)
 		return

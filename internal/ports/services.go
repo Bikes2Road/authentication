@@ -6,9 +6,14 @@ import (
 	"github.com/bikes2road/authentication/internal/domain"
 )
 
+type VerifyUserRequest struct {
+	EmailOrNickName string `json:"email_or_nick_name" binding:"required"`
+	Password        string `json:"password" binding:"required"`
+}
+
 // AuthService define la interfaz para el servicio de autenticación
 type AuthService interface {
-	Login(ctx context.Context, emailOrNickName, password string) (*domain.LoginResponse, error)
+	Login(ctx context.Context, req VerifyUserRequest) (*domain.LoginResponse, error)
 	ValidateToken(ctx context.Context, token string) (*domain.ValidateResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.RefreshResponse, error)
 }
@@ -20,8 +25,8 @@ type JWTService interface {
 	ParseToken(tokenString string) (*domain.JWTClaims, error)
 }
 
-// UserServiceClient define la interfaz para el cliente del servicio de usuarios
-type UserServiceClient interface {
-	GetUserByEmailOrNickName(ctx context.Context, emailOrNickName, password string) (*domain.User, error)
-	GetUserByID(ctx context.Context, id string) (*domain.User, error)
+// UserService define la interfaz para el cliente del servicio de usuarios
+type UserService interface {
+	GetUserByEmailOrNickName(ctx context.Context, emailOrNickName string) (*domain.User, error)
+	VerifyUser(ctx context.Context, req VerifyUserRequest) (*domain.User, error)
 }

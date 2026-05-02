@@ -52,14 +52,15 @@ func (s *jwtService) generateToken(user *domain.User, tokenType domain.TokenType
 	expirationTime := now.Add(expiration)
 
 	claims := &domain.JWTClaims{
-		UserID: user.ID,
-		Email:  user.Email,
+		UserID:   user.ID,
+		Email:    user.Email,
+		NickName: user.NickName,
+		Role:     user.Role,
 		// Campos explícitos para swagger
 		ExpiresAt: expirationTime.Unix(),
 		IssuedAt:  now.Unix(),
 		NotBefore: now.Unix(),
 		Issuer:    "bikes2road-auth",
-		Subject:   user.ID,
 		ID:        fmt.Sprintf("%s-%s-%d", user.ID, tokenType, now.Unix()),
 		// También llenar RegisteredClaims para compatibilidad con jwt library
 		RegisteredClaims: jwt.RegisteredClaims{

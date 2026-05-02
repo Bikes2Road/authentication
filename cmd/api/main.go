@@ -36,7 +36,10 @@ func main() {
 	}
 
 	// Crear container con dependencias
-	c := container.New(cfg)
+	c, err := container.New(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create container: %v", err)
+	}
 
 	// Iniciar servidor
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)

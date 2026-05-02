@@ -9,9 +9,10 @@ import (
 
 // Config contiene toda la configuración de la aplicación
 type Config struct {
-	Server ServerConfig
-	JWT    JWTConfig
-	Users  UsersServiceConfig
+	Server   ServerConfig
+	JWT      JWTConfig
+	Users    UsersServiceConfig
+	Supabase SupabaseConfig
 }
 
 // ServerConfig contiene la configuración del servidor HTTP
@@ -32,6 +33,12 @@ type UsersServiceConfig struct {
 	BaseURL string
 }
 
+// SupabaseConfig contiene la configuración de Supabase
+type SupabaseConfig struct {
+	URL    string
+	APIKey string
+}
+
 // Load carga la configuración desde variables de entorno
 func Load() (*Config, error) {
 	config := &Config{
@@ -43,6 +50,10 @@ func Load() (*Config, error) {
 			SecretKey:              getEnv("JWT_SECRET_KEY", ""),
 			AccessTokenExpiration:  getDurationEnv("JWT_ACCESS_TOKEN_EXPIRATION", 24*time.Hour),
 			RefreshTokenExpiration: getDurationEnv("JWT_REFRESH_TOKEN_EXPIRATION", 24*time.Hour),
+		},
+		Supabase: SupabaseConfig{
+			URL:    getEnv("SUPABASE_URL", ""),
+			APIKey: getEnv("SUPABASE_API_KEY", ""),
 		},
 		Users: UsersServiceConfig{
 			BaseURL: getEnv("USERS_SERVICE_URL", "http://localhost:8083"),
