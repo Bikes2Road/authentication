@@ -98,7 +98,7 @@ func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickNa
 	var users []User
 	filter := fmt.Sprintf("nick_name.eq.%s,email.eq.%s", emailOrNickName, emailOrNickName)
 	_, err := r.client.From("users").
-		Select("id, nick_name, first_name, last_name, email, password, is_active, phone_number", "", false).
+		Select("id, nick_name, first_name, last_name, email, password, is_active, phone_number, role", "", false).
 		Or(filter, "").
 		ExecuteTo(&users)
 
