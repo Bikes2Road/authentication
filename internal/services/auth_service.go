@@ -43,6 +43,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 			NickName:  user.NickName,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
+			Role:      user.Role,
 		},
 		Tokens: tokens,
 	}
