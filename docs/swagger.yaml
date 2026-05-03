@@ -27,10 +27,12 @@ definitions:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
         description: the `nbf` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5
+      nick_name:
+        type: string
+      role:
+        type: string
       sub:
         description: the `sub` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
-        type: string
-      user_id:
         type: string
     type: object
   github_com_bikes2road_authentication_internal_domain.LoginRequest:
@@ -88,6 +90,8 @@ definitions:
       last_name:
         type: string
       nick_name:
+        type: string
+      role:
         type: string
     type: object
   github_com_bikes2road_authentication_internal_domain.ValidateRequest:

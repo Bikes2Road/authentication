@@ -240,11 +240,14 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "sub": {
-                    "description": "the ` + "`" + `sub` + "`" + ` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2",
+                "nick_name": {
                     "type": "string"
                 },
-                "user_id": {
+                "role": {
+                    "type": "string"
+                },
+                "sub": {
+                    "description": "the ` + "`" + `sub` + "`" + ` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2",
                     "type": "string"
                 }
             }
@@ -331,6 +334,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nick_name": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 }
             }
