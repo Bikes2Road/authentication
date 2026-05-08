@@ -54,6 +54,37 @@ func (h *authHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// OauthLogin godoc
+// @Summary      OAuth login de usuario
+// @Description  Autentica un usuario con Google OAuth y retorna tokens JWT
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body ports.UserInfoOAuth true "Credenciales de OAuth"
+// @Success      200 {object} domain.LoginResponse "Login exitoso"
+// @Failure      400 {object} ErrorResponse "Request inválido"
+// @Failure      401 {object} ErrorResponse "Credenciales inválidas"
+// @Failure      500 {object} ErrorResponse "Error interno del servidor"
+// @Router       /oauth/login [post]
+func (h *authHandler) OauthLogin(c *gin.Context) {
+	var req ports.UserInfoOAuth
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Error:   "Invalid request",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	response, err := h.authService.OauthLogin(c.Request.Context(), req)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 // Validate godoc
 // @Summary      Validar token JWT
 // @Description  Valida un token JWT y retorna sus claims si es válido

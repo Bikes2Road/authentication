@@ -11,9 +11,19 @@ type VerifyUserRequest struct {
 	Password        string `json:"password" binding:"required"`
 }
 
+type UserInfoOAuth struct {
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	NickName  string `json:"nick_name"`
+	Role      string `json:"role"`
+}
+
 // AuthService define la interfaz para el servicio de autenticación
 type AuthService interface {
 	Login(ctx context.Context, req VerifyUserRequest) (*domain.LoginResponse, error)
+	OauthLogin(ctx context.Context, req UserInfoOAuth) (*domain.LoginResponse, error)
 	ValidateToken(ctx context.Context, token string) (*domain.ValidateResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.RefreshResponse, error)
 }

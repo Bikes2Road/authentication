@@ -88,6 +88,58 @@
                 }
             }
         },
+        "/oauth/login": {
+            "post": {
+                "description": "Autentica un usuario con Google OAuth y retorna tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "OAuth login de usuario",
+                "parameters": [
+                    {
+                        "description": "Credenciales de OAuth",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bikes2road_authentication_internal_ports.UserInfoOAuth"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bikes2road_authentication_internal_domain.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Request inválido",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/refresh": {
             "post": {
                 "description": "Genera un nuevo par de tokens usando un refresh token válido",
@@ -353,6 +405,29 @@
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "github_com_bikes2road_authentication_internal_ports.UserInfoOAuth": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nick_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },

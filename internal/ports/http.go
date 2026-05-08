@@ -7,6 +7,7 @@ import (
 // AuthHandler define la interfaz para los handlers de autenticación
 type AuthHandler interface {
 	Login(c *gin.Context)
+	OauthLogin(c *gin.Context)
 	Validate(c *gin.Context)
 	Refresh(c *gin.Context)
 }

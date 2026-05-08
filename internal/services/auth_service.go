@@ -51,6 +51,38 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 	return response, nil
 }
 
+func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (*domain.LoginResponse, error) {
+	user := &domain.User{
+		ID:        req.ID,
+		Email:     req.Email,
+		NickName:  req.NickName,
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+		Role:      req.Role,
+	}
+
+	// Generar tokens
+	tokens, err := s.jwtService.GenerateTokenPair(user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate tokens: %w", err)
+	}
+
+	// Construir respuesta
+	response := &domain.LoginResponse{
+		User: &domain.UserInfo{
+			ID:        user.ID,
+			Email:     user.Email,
+			NickName:  user.NickName,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+		},
+		Tokens: tokens,
+	}
+
+	return response, nil
+}
+
 // ValidateToken valida un token JWT
 func (s *authService) ValidateToken(ctx context.Context, token string) (*domain.ValidateResponse, error) {
 	claims, err := s.jwtService.ValidateToken(token, domain.AccessToken)
