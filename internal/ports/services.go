@@ -12,12 +12,13 @@ type VerifyUserRequest struct {
 }
 
 type UserInfoOAuth struct {
-	ID        string `json:"id"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	NickName  string `json:"nick_name"`
-	Role      string `json:"role"`
+	ID          string `json:"id"`
+	Email       string `json:"email"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	NickName    string `json:"nick_name"`
+	Role        string `json:"role"`
+	HasPassword bool   `json:"has_password"`
 }
 
 // AuthService define la interfaz para el servicio de autenticación

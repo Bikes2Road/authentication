@@ -54,12 +54,13 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 
 func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (*domain.LoginResponse, error) {
 	user := &domain.User{
-		ID:        req.ID,
-		Email:     req.Email,
-		NickName:  req.NickName,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Role:      req.Role,
+		ID:          req.ID,
+		Email:       req.Email,
+		NickName:    req.NickName,
+		FirstName:   req.FirstName,
+		LastName:    req.LastName,
+		Role:        req.Role,
+		HasPassword: req.HasPassword,
 	}
 
 	// Generar tokens
