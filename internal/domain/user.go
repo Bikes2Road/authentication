@@ -20,6 +20,7 @@ type User struct {
 	Email       string    `json:"email"`
 	PhoneNumber string    `json:"phone_number"`
 	Password    string    `json:"password"`
+	HasPassword bool      `json:"has_password"`
 	IsActive    bool      `json:"is_active"`
 	Role        string    `json:"role"`
 	DateCreated time.Time `json:"date_created"`

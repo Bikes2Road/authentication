@@ -61,6 +61,7 @@ type User struct {
 	IsActive    bool      `json:"is_active"`
 	Role        string    `json:"role"`
 	PhoneNumber string    `json:"phone_number"`
+	HasPassword bool      `json:"has_password"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 }
@@ -77,6 +78,7 @@ func toSupabaseUser(user *domain.User) *User {
 		IsActive:    user.IsActive,
 		Role:        user.Role,
 		PhoneNumber: user.PhoneNumber,
+		HasPassword: user.HasPassword,
 		DateCreated: user.DateCreated,
 		DateUpdated: user.DateUpdated,
 	}
@@ -94,6 +96,7 @@ func toDomainUser(user *User) *domain.User {
 		IsActive:    user.IsActive,
 		Role:        user.Role,
 		PhoneNumber: user.PhoneNumber,
+		HasPassword: user.HasPassword,
 		DateCreated: user.DateCreated,
 		DateUpdated: user.DateUpdated,
 	}

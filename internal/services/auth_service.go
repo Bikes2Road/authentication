@@ -38,12 +38,13 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 	// Construir respuesta
 	response := &domain.LoginResponse{
 		User: &domain.UserInfo{
-			ID:        user.ID,
-			Email:     user.Email,
-			NickName:  user.NickName,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Role:      user.Role,
+			ID:          user.ID,
+			Email:       user.Email,
+			NickName:    user.NickName,
+			FirstName:   user.FirstName,
+			LastName:    user.LastName,
+			Role:        user.Role,
+			HasPassword: user.HasPassword,
 		},
 		Tokens: tokens,
 	}
@@ -70,12 +71,13 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 	// Construir respuesta
 	response := &domain.LoginResponse{
 		User: &domain.UserInfo{
-			ID:        user.ID,
-			Email:     user.Email,
-			NickName:  user.NickName,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Role:      user.Role,
+			ID:          user.ID,
+			Email:       user.Email,
+			NickName:    user.NickName,
+			FirstName:   user.FirstName,
+			LastName:    user.LastName,
+			Role:        user.Role,
+			HasPassword: user.HasPassword,
 		},
 		Tokens: tokens,
 	}
