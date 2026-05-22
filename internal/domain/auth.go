@@ -2,8 +2,8 @@ package domain
 
 // LoginRequest representa la solicitud de login
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	EmailOrNickName string `json:"email_or_nick_name" binding:"required" example:"[EMAIL_ADDRESS] | johndoe"`
+	Password        string `json:"password" binding:"required,min=6" example:"T3st123@"`
 }
 
 // LoginResponse representa la respuesta exitosa de login
@@ -14,10 +14,13 @@ type LoginResponse struct {
 
 // UserInfo representa la información del usuario en la respuesta
 type UserInfo struct {
-	ID        string `json:"id"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	ID          string `json:"id"`
+	Email       string `json:"email"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	NickName    string `json:"nick_name"`
+	Role        string `json:"role"`
+	HasPassword bool   `json:"has_password"`
 }
 
 // ValidateRequest representa la solicitud de validación de token

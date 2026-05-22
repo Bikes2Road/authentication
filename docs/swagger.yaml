@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api/auth/v1
 definitions:
   github_com_bikes2road_authentication_internal_domain.JWTClaims:
     properties:
@@ -13,8 +13,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
         description: the `exp` (Expiration Time) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
-      first_name:
-        type: string
       iat:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
@@ -25,27 +23,29 @@ definitions:
       jti:
         description: the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7
         type: string
-      last_name:
-        type: string
       nbf:
         allOf:
         - $ref: '#/definitions/jwt.NumericDate'
         description: the `nbf` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5
+      nick_name:
+        type: string
+      role:
+        type: string
       sub:
         description: the `sub` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
-        type: string
-      user_id:
         type: string
     type: object
   github_com_bikes2road_authentication_internal_domain.LoginRequest:
     properties:
-      email:
+      email_or_nick_name:
+        example: '[EMAIL_ADDRESS] | johndoe'
         type: string
       password:
+        example: T3st123@
         minLength: 6
         type: string
     required:
-    - email
+    - email_or_nick_name
     - password
     type: object
   github_com_bikes2road_authentication_internal_domain.LoginResponse:
@@ -89,6 +89,10 @@ definitions:
         type: string
       last_name:
         type: string
+      nick_name:
+        type: string
+      role:
+        type: string
     type: object
   github_com_bikes2road_authentication_internal_domain.ValidateRequest:
     properties:
@@ -103,6 +107,21 @@ definitions:
         $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.JWTClaims'
       valid:
         type: boolean
+    type: object
+  github_com_bikes2road_authentication_internal_ports.UserInfoOAuth:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      nick_name:
+        type: string
+      role:
+        type: string
     type: object
   internal_adapters_http.ErrorResponse:
     properties:
@@ -133,7 +152,20 @@ info:
   title: Bikes2Road Authentication API
   version: "1.0"
 paths:
-  /auth/login:
+  /health:
+    get:
+      description: Verifica que el servicio esté funcionando
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Servicio funcionando correctamente
+          schema:
+            $ref: '#/definitions/internal_adapters_http.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+  /login:
     post:
       consumes:
       - application/json
@@ -167,7 +199,41 @@ paths:
       summary: Login de usuario
       tags:
       - auth
-  /auth/refresh:
+  /oauth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica un usuario con Google OAuth y retorna tokens JWT
+      parameters:
+      - description: Credenciales de OAuth
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_bikes2road_authentication_internal_ports.UserInfoOAuth'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login exitoso
+          schema:
+            $ref: '#/definitions/github_com_bikes2road_authentication_internal_domain.LoginResponse'
+        "400":
+          description: Request inválido
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "401":
+          description: Credenciales inválidas
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/internal_adapters_http.ErrorResponse'
+      summary: OAuth login de usuario
+      tags:
+      - auth
+  /refresh:
     post:
       consumes:
       - application/json
@@ -201,7 +267,7 @@ paths:
       summary: Refrescar token JWT
       tags:
       - auth
-  /auth/validate:
+  /validate:
     post:
       consumes:
       - application/json
@@ -231,19 +297,6 @@ paths:
       summary: Validar token JWT
       tags:
       - auth
-  /health:
-    get:
-      description: Verifica que el servicio esté funcionando
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Servicio funcionando correctamente
-          schema:
-            $ref: '#/definitions/internal_adapters_http.HealthResponse'
-      summary: Health check
-      tags:
-      - health
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

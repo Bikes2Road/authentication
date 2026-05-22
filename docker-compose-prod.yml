@@ -1,0 +1,31 @@
+services:
+  authentication-prod:
+    build: .
+    container_name: authentication-prod
+    ports:
+      - "${PORT}:8080"
+    environment:
+      - PORT=8080
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - USERS_SERVICE_URL=${USERS_SERVICE_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=disable
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.auth-prod.rule: "Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
+      traefik.http.routers.auth-prod.entrypoints: "web,websecure"
+      traefik.http.routers.auth-prod.tls: "true"
+      traefik.http.routers.auth-prod.tls.certresolver: "letsencrypt"
+      traefik.http.services.auth-prod.loadbalancer.server.port: "8080"
+      traefik.http.middlewares.auth-prod-strip.stripprefix.prefixes: "/api/auth"
+      traefik.http.routers.auth-prod.middlewares: "auth-prod-strip"
+
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true

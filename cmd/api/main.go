@@ -21,7 +21,7 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @BasePath  /api/v1
+// @BasePath  /api/auth/v1
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -36,7 +36,10 @@ func main() {
 	}
 
 	// Crear container con dependencias
-	c := container.New(cfg)
+	c, err := container.New(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create container: %v", err)
+	}
 
 	// Iniciar servidor
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)

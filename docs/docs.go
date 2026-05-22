@@ -23,7 +23,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/health": {
+            "get": {
+                "description": "Verifica que el servicio esté funcionando",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Servicio funcionando correctamente",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
             "post": {
                 "description": "Autentica un usuario con email y password, retorna tokens JWT",
                 "consumes": [
@@ -75,7 +95,59 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh": {
+        "/oauth/login": {
+            "post": {
+                "description": "Autentica un usuario con Google OAuth y retorna tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "OAuth login de usuario",
+                "parameters": [
+                    {
+                        "description": "Credenciales de OAuth",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bikes2road_authentication_internal_ports.UserInfoOAuth"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_bikes2road_authentication_internal_domain.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Request inválido",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapters_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/refresh": {
             "post": {
                 "description": "Genera un nuevo par de tokens usando un refresh token válido",
                 "consumes": [
@@ -127,7 +199,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/validate": {
+        "/validate": {
             "post": {
                 "description": "Valida un token JWT y retorna sus claims si es válido",
                 "consumes": [
@@ -172,26 +244,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/health": {
-            "get": {
-                "description": "Verifica que el servicio esté funcionando",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "Servicio funcionando correctamente",
-                        "schema": {
-                            "$ref": "#/definitions/internal_adapters_http.HealthResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -216,9 +268,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "first_name": {
-                    "type": "string"
-                },
                 "iat": {
                     "description": "the ` + "`" + `iat` + "`" + ` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6",
                     "allOf": [
@@ -235,9 +284,6 @@ const docTemplate = `{
                     "description": "the ` + "`" + `jti` + "`" + ` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7",
                     "type": "string"
                 },
-                "last_name": {
-                    "type": "string"
-                },
                 "nbf": {
                     "description": "the ` + "`" + `nbf` + "`" + ` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5",
                     "allOf": [
@@ -246,11 +292,14 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "sub": {
-                    "description": "the ` + "`" + `sub` + "`" + ` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2",
+                "nick_name": {
                     "type": "string"
                 },
-                "user_id": {
+                "role": {
+                    "type": "string"
+                },
+                "sub": {
+                    "description": "the ` + "`" + `sub` + "`" + ` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2",
                     "type": "string"
                 }
             }
@@ -258,16 +307,18 @@ const docTemplate = `{
         "github_com_bikes2road_authentication_internal_domain.LoginRequest": {
             "type": "object",
             "required": [
-                "email",
+                "email_or_nick_name",
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
+                "email_or_nick_name": {
+                    "type": "string",
+                    "example": "[EMAIL_ADDRESS] | johndoe"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "T3st123@"
                 }
             }
         },
@@ -333,6 +384,12 @@ const docTemplate = `{
                 },
                 "last_name": {
                     "type": "string"
+                },
+                "nick_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },
@@ -355,6 +412,29 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "github_com_bikes2road_authentication_internal_ports.UserInfoOAuth": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nick_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },
@@ -400,12 +480,14 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/api/v1",
+	BasePath:         "/api/auth/v1",
 	Schemes:          []string{},
 	Title:            "Bikes2Road Authentication API",
 	Description:      "Microservicio de autenticación para validar y crear JWT tokens",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

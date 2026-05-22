@@ -9,9 +9,10 @@ import (
 
 // Config contiene toda la configuración de la aplicación
 type Config struct {
-	Server ServerConfig
-	JWT    JWTConfig
-	Users  UsersServiceConfig
+	Server   ServerConfig
+	JWT      JWTConfig
+	Users    UsersServiceConfig
+	Postgres PostgresConfig
 }
 
 // ServerConfig contiene la configuración del servidor HTTP
@@ -32,6 +33,16 @@ type UsersServiceConfig struct {
 	BaseURL string
 }
 
+// PostgresConfig contiene la configuración de PostgreSQL
+type PostgresConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
 // Load carga la configuración desde variables de entorno
 func Load() (*Config, error) {
 	config := &Config{
@@ -43,6 +54,14 @@ func Load() (*Config, error) {
 			SecretKey:              getEnv("JWT_SECRET_KEY", ""),
 			AccessTokenExpiration:  getDurationEnv("JWT_ACCESS_TOKEN_EXPIRATION", 24*time.Hour),
 			RefreshTokenExpiration: getDurationEnv("JWT_REFRESH_TOKEN_EXPIRATION", 24*time.Hour),
+		},
+		Postgres: PostgresConfig{
+			Host:     getEnv("DB_HOST", "localhost"),
+			Port:     getEnv("DB_PORT", "5432"),
+			User:     getEnv("DB_USER", "postgres"),
+			Password: getEnv("DB_PASSWORD", ""),
+			DBName:   getEnv("DB_NAME", "auth_db"),
+			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		Users: UsersServiceConfig{
 			BaseURL: getEnv("USERS_SERVICE_URL", "http://localhost:8083"),

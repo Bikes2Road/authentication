@@ -1,9 +1,11 @@
 package container
 
 import (
+	"fmt"
+
 	"github.com/bikes2road/authentication/cmd/api/config"
 	httpAdapter "github.com/bikes2road/authentication/internal/adapters/http"
-	"github.com/bikes2road/authentication/internal/adapters/httpclient"
+	"github.com/bikes2road/authentication/internal/adapters/postgres"
 	"github.com/bikes2road/authentication/internal/ports"
 	"github.com/bikes2road/authentication/internal/services"
 	"github.com/gin-gonic/gin"
@@ -18,9 +20,25 @@ type Container struct {
 }
 
 // New crea un nuevo container con todas las dependencias inyectadas
-func New(cfg *config.Config) *Container {
-	// Crear adaptador de cliente HTTP para el servicio de usuarios
-	userServiceClient := httpclient.NewUserServiceClient(cfg.Users.BaseURL)
+func New(cfg *config.Config) (*Container, error) {
+	pool, err := postgres.NewClient(postgres.ClientConfig{
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		User:     cfg.Postgres.User,
+		Password: cfg.Postgres.Password,
+		DBName:   cfg.Postgres.DBName,
+		SSLMode:  cfg.Postgres.SSLMode,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize postgres client: %w", err)
+	}
+
+	if err := postgres.RunMigrations(pool); err != nil {
+		return nil, fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	userRepository := postgres.NewUserRepository(pool)
+	userService := services.NewUserService(userRepository)
 
 	// Crear servicios
 	jwtService := services.NewJWTService(
@@ -28,7 +46,7 @@ func New(cfg *config.Config) *Container {
 		cfg.JWT.AccessTokenExpiration,
 		cfg.JWT.RefreshTokenExpiration,
 	)
-	authService := services.NewAuthService(jwtService, userServiceClient)
+	authService := services.NewAuthService(jwtService, userService)
 
 	// Crear handlers
 	authHandler := httpAdapter.NewAuthHandler(authService)
@@ -42,5 +60,5 @@ func New(cfg *config.Config) *Container {
 		AuthHandler:   authHandler,
 		HealthHandler: healthHandler,
 		Router:        router,
-	}
+	}, nil
 }
