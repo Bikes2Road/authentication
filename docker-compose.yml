@@ -15,7 +15,7 @@ services:
       - DB_SSLMODE=disable
     labels:
       traefik.enable: "true"
-      traefik.http.routers.auth.rule: "Host(`dev-api.bikes2road.com`) && PathPrefix(`/api/auth`)"
+      traefik.http.routers.auth.rule: "Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
       traefik.http.routers.auth.entrypoints: "web,websecure"
       traefik.http.routers.auth.tls: "true"
       traefik.http.routers.auth.tls.certresolver: "letsencrypt"
