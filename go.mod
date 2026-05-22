@@ -1,11 +1,12 @@
 module github.com/bikes2road/authentication
 
-go 1.24.1
+go 1.25.0
 
 require (
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/supabase-community/postgrest-go v0.0.12
 	github.com/supabase-community/supabase-go v0.0.4
 	github.com/swaggo/files v1.0.1
@@ -34,6 +35,9 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect

@@ -12,7 +12,7 @@ type Config struct {
 	Server   ServerConfig
 	JWT      JWTConfig
 	Users    UsersServiceConfig
-	Supabase SupabaseConfig
+	Postgres PostgresConfig
 }
 
 // ServerConfig contiene la configuración del servidor HTTP
@@ -33,10 +33,14 @@ type UsersServiceConfig struct {
 	BaseURL string
 }
 
-// SupabaseConfig contiene la configuración de Supabase
-type SupabaseConfig struct {
-	URL    string
-	APIKey string
+// PostgresConfig contiene la configuración de PostgreSQL
+type PostgresConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
 }
 
 // Load carga la configuración desde variables de entorno
@@ -51,9 +55,13 @@ func Load() (*Config, error) {
 			AccessTokenExpiration:  getDurationEnv("JWT_ACCESS_TOKEN_EXPIRATION", 24*time.Hour),
 			RefreshTokenExpiration: getDurationEnv("JWT_REFRESH_TOKEN_EXPIRATION", 24*time.Hour),
 		},
-		Supabase: SupabaseConfig{
-			URL:    getEnv("SUPABASE_URL", ""),
-			APIKey: getEnv("SUPABASE_API_KEY", ""),
+		Postgres: PostgresConfig{
+			Host:     getEnv("DB_HOST", "localhost"),
+			Port:     getEnv("DB_PORT", "5432"),
+			User:     getEnv("DB_USER", "postgres"),
+			Password: getEnv("DB_PASSWORD", ""),
+			DBName:   getEnv("DB_NAME", "auth_db"),
+			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		Users: UsersServiceConfig{
 			BaseURL: getEnv("USERS_SERVICE_URL", "http://localhost:8083"),
