@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,7 +25,7 @@ func NewClient(cfg ClientConfig) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
 	}
 
-	pool, err := pgxpool.NewWithConfig(nil, poolConfig)
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}
