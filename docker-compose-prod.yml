@@ -12,7 +12,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - DB_SSLMODE=disable
+      - DB_SSLMODE=${DB_SSLMODE}
     labels:
       traefik.enable: "true"
       traefik.http.routers.auth-prod.rule: "Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
