@@ -15,13 +15,13 @@ services:
       - DB_SSLMODE=${DB_SSLMODE}
     labels:
       traefik.enable: "true"
-      traefik.http.routers.auth-prod.rule: "Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
-      traefik.http.routers.auth-prod.entrypoints: "web,websecure"
-      traefik.http.routers.auth-prod.tls: "true"
-      traefik.http.routers.auth-prod.tls.certresolver: "letsencrypt"
-      traefik.http.services.auth-prod.loadbalancer.server.port: "8080"
-      traefik.http.middlewares.auth-prod-strip.stripprefix.prefixes: "/api/auth"
-      traefik.http.routers.auth-prod.middlewares: "auth-prod-strip"
+      traefik.http.routers.authentication-prod.rule: "Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)"
+      traefik.http.routers.authentication-prod.entrypoints: "web,websecure"
+      traefik.http.routers.authentication-prod.tls: "true"
+      traefik.http.routers.authentication-prod.tls.certresolver: "letsencrypt"
+      traefik.http.services.authentication-prod.loadbalancer.server.port: "8080"
+      traefik.http.middlewares.authentication-prod-strip.stripprefix.prefixes: "/api/auth"
+      traefik.http.routers.authentication-prod.middlewares: "authentication-prod-strip"
 
     networks:
       - dokploy-network
