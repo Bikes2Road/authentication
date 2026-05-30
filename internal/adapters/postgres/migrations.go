@@ -52,13 +52,18 @@ type User struct {
 	Password    string    `json:"password"`
 	IsActive    bool      `json:"is_active"`
 	Role        string    `json:"role"`
-	PhoneNumber string    `json:"phone_number"`
+	PhoneNumber *string   `json:"phone_number"`
 	HasPassword bool      `json:"has_password"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 }
 
 func toDomainUser(user *User) *domain.User {
+	var phoneNumber string
+	if user.PhoneNumber != nil {
+		phoneNumber = *user.PhoneNumber
+	}
+
 	return &domain.User{
 		ID:          user.ID,
 		NickName:    user.NickName,
@@ -68,7 +73,7 @@ func toDomainUser(user *User) *domain.User {
 		Password:    user.Password,
 		IsActive:    user.IsActive,
 		Role:        user.Role,
-		PhoneNumber: user.PhoneNumber,
+		PhoneNumber: phoneNumber,
 		HasPassword: user.HasPassword,
 		DateCreated: user.DateCreated,
 		DateUpdated: user.DateUpdated,

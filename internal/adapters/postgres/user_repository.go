@@ -2,11 +2,14 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/bikes2road/authentication/internal/domain"
 	"github.com/bikes2road/authentication/internal/ports"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -85,7 +88,12 @@ func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickNa
 		&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
 	)
 	if err != nil {
-		return nil, domain.ErrUserNotFound
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrUserNotFound
+		}
+
+		log.Printf("unexpected error looking for email/nickname: %v", err)
+		return nil, err
 	}
 	return toDomainUser(user), nil
 }
