@@ -38,7 +38,8 @@ func New(cfg *config.Config) (*Container, error) {
 	}
 
 	userRepository := postgres.NewUserRepository(pool)
-	userService := services.NewUserService(userRepository)
+	companyRepository := postgres.NewCompanyRepository(pool)
+	userService := services.NewUserService(userRepository, companyRepository)
 
 	// Crear servicios
 	jwtService := services.NewJWTService(

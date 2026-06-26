@@ -15,7 +15,7 @@ func SecurityHeaders() gin.HandlerFunc {
 		c.Header("X-Frame-Options", "DENY")
 		// Establece política de seguridad de contenido básica (opcional, ajustada según el caso de uso)
 		c.Header("Content-Security-Policy", "default-src 'self'")
-		
+
 		c.Next()
 	}
 }

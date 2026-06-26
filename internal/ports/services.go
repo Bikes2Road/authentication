@@ -40,4 +40,6 @@ type JWTService interface {
 type UserService interface {
 	GetUserByEmailOrNickName(ctx context.Context, emailOrNickName string) (*domain.User, error)
 	VerifyUser(ctx context.Context, req VerifyUserRequest) (*domain.User, error)
+	// GetCompanyIDForUser returns the company_id associated with the user, or (nil, nil) if none.
+	GetCompanyIDForUser(ctx context.Context, userID string) (*string, error)
 }

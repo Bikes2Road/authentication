@@ -23,6 +23,7 @@ type User struct {
 	HasPassword bool      `json:"has_password"`
 	IsActive    bool      `json:"is_active"`
 	Role        string    `json:"role"`
+	CompanyID   *string   `json:"company_id,omitempty"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 }

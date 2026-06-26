@@ -14,6 +14,8 @@ func RunMigrations(pool *pgxpool.Pool) error {
 	log.Println("Running PostgreSQL migrations...")
 
 	query := `
+	CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 	CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY,
 		nick_name VARCHAR(255) NOT NULL,
@@ -32,6 +34,29 @@ func RunMigrations(pool *pgxpool.Pool) error {
 	CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 	CREATE INDEX IF NOT EXISTS idx_users_nick_name ON users(nick_name);
 	CREATE INDEX IF NOT EXISTS idx_users_date_created ON users(date_created);
+
+	CREATE TABLE IF NOT EXISTS companies (
+		company_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+		user_id UUID NOT NULL UNIQUE,
+		company_name VARCHAR(255) NOT NULL,
+		nit VARCHAR(255) NOT NULL UNIQUE,
+		address VARCHAR(255),
+		phone_number VARCHAR(255),
+		website_url VARCHAR(255),
+		logo_url VARCHAR(255),
+		email_company VARCHAR(255),
+		facebook_url VARCHAR(255),
+		instagram_url VARCHAR(255),
+		is_verified BOOLEAN NOT NULL DEFAULT false,
+		verified_at TIMESTAMPTZ,
+		verified_by UUID,
+		date_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+		date_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+		CONSTRAINT fk_company_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+		CONSTRAINT fk_company_verified_by FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_companies_user_id ON companies(user_id);
 	`
 
 	_, err := pool.Exec(context.Background(), query)

@@ -36,3 +36,11 @@ type UserRepository interface {
 	// ExistsByEmail checks if a user with the given email exists
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
+
+// CompanyRepository defines the interface for company data persistence.
+// It is used to resolve the company_id associated with a user when role=company.
+// GetCompanyIDByUserID returns (nil, nil) if the user has no associated company,
+// allowing the auth flow to continue without company context.
+type CompanyRepository interface {
+	GetCompanyIDByUserID(ctx context.Context, userID string) (*string, error)
+}

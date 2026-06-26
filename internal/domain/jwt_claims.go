@@ -6,10 +6,11 @@ import (
 
 // JWTClaims representa los claims personalizados del JWT
 type JWTClaims struct {
-	UserID   string `json:"sub"`
-	Email    string `json:"email"`
-	NickName string `json:"nick_name"`
-	Role     string `json:"role"`
+	UserID    string  `json:"sub"`
+	Email     string  `json:"email"`
+	NickName  string  `json:"nick_name"`
+	Role      string  `json:"role"`
+	CompanyID *string `json:"company_id,omitempty"`
 	// Campos estándar de JWT
 	ExpiresAt int64  `json:"exp,omitempty"`
 	IssuedAt  int64  `json:"iat,omitempty"`

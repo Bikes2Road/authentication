@@ -1,5 +1,9 @@
 package domain
 
+// RoleCompany es el role que identifica a usuarios asociados a una empresa.
+// Solo para estos usuarios se consulta la tabla companies para extraer company_id.
+const RoleCompany = "company"
+
 // LoginRequest representa la solicitud de login
 type LoginRequest struct {
 	EmailOrNickName string `json:"email_or_nick_name" binding:"required" example:"[EMAIL_ADDRESS] | johndoe"`
@@ -14,13 +18,14 @@ type LoginResponse struct {
 
 // UserInfo representa la información del usuario en la respuesta
 type UserInfo struct {
-	ID          string `json:"id"`
-	Email       string `json:"email"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	NickName    string `json:"nick_name"`
-	Role        string `json:"role"`
-	HasPassword bool   `json:"has_password"`
+	ID          string  `json:"id"`
+	Email       string  `json:"email"`
+	FirstName   string  `json:"first_name"`
+	LastName    string  `json:"last_name"`
+	NickName    string  `json:"nick_name"`
+	Role        string  `json:"role"`
+	HasPassword bool    `json:"has_password"`
+	CompanyID   *string `json:"company_id,omitempty"`
 }
 
 // ValidateRequest representa la solicitud de validación de token

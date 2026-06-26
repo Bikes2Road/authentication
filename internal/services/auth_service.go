@@ -21,12 +21,32 @@ func NewAuthService(jwtService ports.JWTService, userService ports.UserService) 
 	}
 }
 
+// resolveCompanyID fills user.CompanyID when the user has the company role.
+// Returns an error only on database failure; users with role=company and no
+// associated company are allowed to authenticate with company_id=nil.
+func (s *authService) resolveCompanyID(ctx context.Context, user *domain.User) error {
+	if user.Role != domain.RoleCompany {
+		user.CompanyID = nil
+		return nil
+	}
+	companyID, err := s.userService.GetCompanyIDForUser(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+	user.CompanyID = companyID
+	return nil
+}
+
 // Login autentica un usuario y genera tokens JWT
 func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
 	user, err := s.userService.VerifyUser(ctx, req)
 	if err != nil {
 		return nil, err
+	}
+
+	if err := s.resolveCompanyID(ctx, user); err != nil {
+		return nil, fmt.Errorf("failed to resolve company id: %w", err)
 	}
 
 	// Generar tokens
@@ -45,6 +65,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
+			CompanyID:   user.CompanyID,
 		},
 		Tokens: tokens,
 	}
@@ -63,6 +84,10 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 		HasPassword: req.HasPassword,
 	}
 
+	if err := s.resolveCompanyID(ctx, user); err != nil {
+		return nil, fmt.Errorf("failed to resolve company id: %w", err)
+	}
+
 	// Generar tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)
 	if err != nil {
@@ -79,6 +104,7 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
+			CompanyID:   user.CompanyID,
 		},
 		Tokens: tokens,
 	}
