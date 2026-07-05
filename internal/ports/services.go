@@ -36,13 +36,12 @@ type JWTService interface {
 	ParseToken(tokenString string) (*domain.JWTClaims, error)
 }
 
-// UserService define la interfaz para el cliente del servicio de usuarios
+// UserService define la interfaz para el cliente del servicio de usuarios.
+// La información de empresa (CompanyInfo) se obtiene embebida en domain.User
+// desde el repositorio, por lo que ya no se exponen métodos separados para
+// consultar company_id o suscription_type.
 type UserService interface {
 	GetUserByEmailOrNickName(ctx context.Context, emailOrNickName string) (*domain.User, error)
 	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 	VerifyUser(ctx context.Context, req VerifyUserRequest) (*domain.User, error)
-	// GetCompanyIDForUser returns the company_id associated with the user, or (nil, nil) if none.
-	GetCompanyIDForUser(ctx context.Context, userID string) (*string, error)
-	// GetCompanySuscriptionType returns the suscription_type of the company identified by companyID.
-	GetCompanySuscriptionType(ctx context.Context, companyID string) (*string, error)
 }

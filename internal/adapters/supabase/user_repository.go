@@ -22,6 +22,11 @@ func NewUserRepository(client *supabase.Client) ports.UserRepository {
 	}
 }
 
+// userSelectCols lista las columnas del usuario + el join con companies para
+// extraer la suscription_type de la empresa. Supabase hace el JOIN automático
+// cuando se referencia la relación FK con la sintaxis "alias:tabla(columna)".
+const userSelectCols = "id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, company_id, company_role, company:companies(suscription_type), date_created, date_updated"
+
 // Create inserts a new user into the database
 func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	supaUser := toSupabaseUser(user)
@@ -39,7 +44,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	var users []User
 	_, err := r.client.From("users").
-		Select("*", "", false).
+		Select(userSelectCols, "", false).
 		Eq("id", id).
 		Limit(1, "").
 		ExecuteTo(&users)
@@ -59,7 +64,7 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var users []User
 	_, err := r.client.From("users").
-		Select("*", "", false).
+		Select(userSelectCols, "", false).
 		Eq("email", email).
 		ExecuteTo(&users)
 
@@ -78,7 +83,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 func (r *userRepository) GetByNickName(ctx context.Context, nickName string) (*domain.User, error) {
 	var users []User
 	_, err := r.client.From("users").
-		Select("*", "", false).
+		Select(userSelectCols, "", false).
 		Eq("nick_name", nickName).
 		ExecuteTo(&users)
 
@@ -98,7 +103,7 @@ func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickNa
 	var users []User
 	filter := fmt.Sprintf("nick_name.eq.%s,email.eq.%s", emailOrNickName, emailOrNickName)
 	_, err := r.client.From("users").
-		Select("id, nick_name, first_name, last_name, email, password, is_active, phone_number, role, has_password, suscription_type", "", false).
+		Select(userSelectCols, "", false).
 		Or(filter, "").
 		ExecuteTo(&users)
 
@@ -117,7 +122,7 @@ func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickNa
 func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]*domain.User, error) {
 	var users []User
 	_, err := r.client.From("users").
-		Select("*", "", false).
+		Select(userSelectCols, "", false).
 		Order("date_created", &postgrest.OrderOpts{Ascending: false}).
 		Range(offset, offset+limit-1, "").
 		ExecuteTo(&users)

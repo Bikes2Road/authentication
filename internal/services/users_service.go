@@ -11,16 +11,12 @@ import (
 
 // userService implements the UserService port
 type userService struct {
-	repo        ports.UserRepository
-	companyRepo ports.CompanyRepository
+	repo ports.UserRepository
 }
 
 // NewUserService creates a new instance of UserService
-func NewUserService(repo ports.UserRepository, companyRepo ports.CompanyRepository) ports.UserService {
-	return &userService{
-		repo:        repo,
-		companyRepo: companyRepo,
-	}
+func NewUserService(repo ports.UserRepository) ports.UserService {
+	return &userService{repo: repo}
 }
 
 // GetUserByEmailOrNickName retrieves a user by their email or nick name
@@ -58,24 +54,4 @@ func (s *userService) VerifyUser(ctx context.Context, req ports.VerifyUserReques
 	}
 
 	return user, nil
-}
-
-// GetCompanyIDForUser returns the company_id associated with the given user id.
-// Returns (nil, nil) when the user has no associated company (per current auth policy).
-func (s *userService) GetCompanyIDForUser(ctx context.Context, userID string) (*string, error) {
-	companyID, err := s.companyRepo.GetCompanyIDByUserID(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get company id for user: %w", err)
-	}
-	return companyID, nil
-}
-
-// GetCompanySuscriptionType returns the suscription_type of the company identified by companyID.
-// Returns (nil, nil) when the company has no suscription_type.
-func (s *userService) GetCompanySuscriptionType(ctx context.Context, companyID string) (*string, error) {
-	suscriptionType, err := s.companyRepo.GetSuscriptionTypeByCompanyID(ctx, companyID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get company suscription type: %w", err)
-	}
-	return suscriptionType, nil
 }

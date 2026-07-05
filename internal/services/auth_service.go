@@ -21,34 +21,32 @@ func NewAuthService(jwtService ports.JWTService, userService ports.UserService) 
 	}
 }
 
-// resolveUserContext fills user.CompanyID and user.CompanySuscriptionType when
-// the user has the company role. It also clears both fields for non-company
-// users so the JWT claims don't leak stale values.
-// Returns an error only on database failure; users with role=company and no
-// associated company are allowed to authenticate with company_id=nil.
-func (s *authService) resolveUserContext(ctx context.Context, user *domain.User) error {
+// resolveUserContext limpia o conserva user.Company según la rol del usuario.
+// La información de empresa (ID, Role, SuscriptionType) ya viene embebida
+// en domain.User desde el repositorio mediante un LEFT JOIN. Esta función
+// garantiza que el claim Company solo se emita cuando es válido.
+//
+// Reglas:
+//   - role != "company"           → user.Company = nil
+//   - role == "company" pero sin ID → user.Company = nil
+//   - role == "company" con ID    → user.Company se conserva tal cual
+func (s *authService) resolveUserContext(user *domain.User) {
 	if user.Role != domain.RoleCompany {
-		user.CompanyID = nil
-		user.CompanySuscriptionType = nil
+		user.Company = nil
+		return
+	}
+	if user.Company == nil || user.Company.ID == "" {
+		user.Company = nil
+	}
+}
+
+// companyIDPtr devuelve un puntero al ID de la empresa del usuario, o nil.
+func companyIDPtr(user *domain.User) *string {
+	if user.Company == nil {
 		return nil
 	}
-	companyID, err := s.userService.GetCompanyIDForUser(ctx, user.ID)
-	if err != nil {
-		return err
-	}
-	user.CompanyID = companyID
-
-	if companyID == nil {
-		user.CompanySuscriptionType = nil
-		return nil
-	}
-
-	suscriptionType, err := s.userService.GetCompanySuscriptionType(ctx, *companyID)
-	if err != nil {
-		return err
-	}
-	user.CompanySuscriptionType = suscriptionType
-	return nil
+	id := user.Company.ID
+	return &id
 }
 
 // Login autentica un usuario y genera tokens JWT
@@ -59,9 +57,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 		return nil, err
 	}
 
-	if err := s.resolveUserContext(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to resolve user context: %w", err)
-	}
+	s.resolveUserContext(user)
 
 	// Generar tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)
@@ -79,7 +75,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
-			CompanyID:   user.CompanyID,
+			CompanyID:   companyIDPtr(user),
 		},
 		Tokens: tokens,
 	}
@@ -100,9 +96,7 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 		return nil, domain.ErrUserInactive
 	}
 
-	if err := s.resolveUserContext(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to resolve user context: %w", err)
-	}
+	s.resolveUserContext(user)
 
 	// Generar tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)
@@ -120,7 +114,7 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
-			CompanyID:   user.CompanyID,
+			CompanyID:   companyIDPtr(user),
 		},
 		Tokens: tokens,
 	}
@@ -166,9 +160,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*d
 		return nil, domain.ErrUserInactive
 	}
 
-	if err := s.resolveUserContext(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to resolve user context: %w", err)
-	}
+	s.resolveUserContext(user)
 
 	// Generar nuevos tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)

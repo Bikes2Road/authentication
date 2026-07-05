@@ -37,13 +37,7 @@ type UserRepository interface {
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
 
-// CompanyRepository defines the interface for company data persistence.
-// It is used to resolve the company_id associated with a user when role=company.
-// GetCompanyIDByUserID returns (nil, nil) if the user has no associated company,
-// allowing the auth flow to continue without company context.
-type CompanyRepository interface {
-	GetCompanyIDByUserID(ctx context.Context, userID string) (*string, error)
-	// GetSuscriptionTypeByCompanyID returns the suscription_type of the company
-	// identified by companyID. Returns (nil, nil) when no row matches.
-	GetSuscriptionTypeByCompanyID(ctx context.Context, companyID string) (*string, error)
-}
+// CompanyRepository queda como marcador para expansiones futuras.
+// Actualmente la información de empresa se obtiene vía JOIN en UserRepository
+// y se embebe en domain.User.Company.
+type CompanyRepository interface{}
