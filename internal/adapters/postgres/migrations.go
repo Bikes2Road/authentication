@@ -43,6 +43,42 @@ func RunMigrations(pool *pgxpool.Pool) error {
 		CREATE TYPE register_platform AS ENUM ('bikes2road', 'google', 'facebook', 'apple');
 	EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+	-- Tablas independientes primero (sin FKs hacia users/companies)
+	CREATE TABLE IF NOT EXISTS "companies" (
+		"company_id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+		"company_name" varchar NOT NULL,
+		"nit" varchar NOT NULL CONSTRAINT "companies_nit_key" UNIQUE,
+		"address" varchar[],
+		"phone_number" varchar,
+		"website_url" varchar,
+		"logo_url" varchar,
+		"email_company" varchar,
+		"facebook_url" varchar,
+		"instagram_url" varchar,
+		"is_verified" boolean DEFAULT false NOT NULL,
+		"verified_at" timestamp with time zone,
+		"verified_by" uuid,
+		"date_created" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+		"date_updated" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+		"nick_company" varchar NOT NULL CONSTRAINT "companies_nick_company_key" UNIQUE,
+		"tiktok_url" varchar,
+		"suscription" boolean DEFAULT false NOT NULL,
+		"date_finish_suscription" timestamp with time zone,
+		"suscription_type" suscription_type_company DEFAULT 'none' NOT NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_companies_nit ON "companies"(nit);
+	CREATE INDEX IF NOT EXISTS idx_companies_nick_company ON "companies"(nick_company);
+
+	CREATE TABLE IF NOT EXISTS "subscription_plans" (
+		"plan_id" varchar PRIMARY KEY,
+		"name" varchar NOT NULL,
+		"max_bikes_allowed" integer DEFAULT 0 NOT NULL,
+		"date_created" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+		"date_updated" timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+	);
+
+	-- users al final: tiene FK hacia companies
 	CREATE TABLE IF NOT EXISTS "users" (
 		"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
 		"nick_name" varchar NOT NULL CONSTRAINT "users_nick_name_key" UNIQUE,
@@ -75,40 +111,11 @@ func RunMigrations(pool *pgxpool.Pool) error {
 	CREATE INDEX IF NOT EXISTS idx_users_date_created ON "users"(date_created);
 	CREATE INDEX IF NOT EXISTS idx_users_company_id ON "users"(company_id);
 
-	CREATE TABLE IF NOT EXISTS "subscription_plans" (
-		"plan_id" varchar PRIMARY KEY,
-		"name" varchar NOT NULL,
-		"max_bikes_allowed" integer DEFAULT 0 NOT NULL,
-		"date_created" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-		"date_updated" timestamp with time zone DEFAULT CURRENT_TIMESTAMP
-	);
-
-	CREATE TABLE IF NOT EXISTS "companies" (
-		"company_id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-		"company_name" varchar NOT NULL,
-		"nit" varchar NOT NULL CONSTRAINT "companies_nit_key" UNIQUE,
-		"address" varchar[],
-		"phone_number" varchar,
-		"website_url" varchar,
-		"logo_url" varchar,
-		"email_company" varchar,
-		"facebook_url" varchar,
-		"instagram_url" varchar,
-		"is_verified" boolean DEFAULT false NOT NULL,
-		"verified_at" timestamp with time zone,
-		"verified_by" uuid,
-		"date_created" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-		"date_updated" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-		"nick_company" varchar NOT NULL CONSTRAINT "companies_nick_company_key" UNIQUE,
-		"tiktok_url" varchar,
-		"suscription" boolean DEFAULT false NOT NULL,
-		"date_finish_suscription" timestamp with time zone,
-		"suscription_type" suscription_type_company DEFAULT 'none' NOT NULL,
-		CONSTRAINT fk_companies_verified_by FOREIGN KEY ("verified_by") REFERENCES "users"("id") ON DELETE SET NULL
-	);
-
-	CREATE INDEX IF NOT EXISTS idx_companies_nit ON "companies"(nit);
-	CREATE INDEX IF NOT EXISTS idx_companies_nick_company ON "companies"(nick_company);
+	-- FK circular: companies.verified_by → users.id, agregada al final
+	DO $$ BEGIN
+		ALTER TABLE "companies"
+			ADD CONSTRAINT fk_companies_verified_by FOREIGN KEY ("verified_by") REFERENCES "users"("id") ON DELETE SET NULL;
+	EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 	`
 
 	_, err := pool.Exec(context.Background(), query)
