@@ -43,4 +43,7 @@ type UserRepository interface {
 // allowing the auth flow to continue without company context.
 type CompanyRepository interface {
 	GetCompanyIDByUserID(ctx context.Context, userID string) (*string, error)
+	// GetSuscriptionTypeByCompanyID returns the suscription_type of the company
+	// identified by companyID. Returns (nil, nil) when no row matches.
+	GetSuscriptionTypeByCompanyID(ctx context.Context, companyID string) (*string, error)
 }

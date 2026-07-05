@@ -69,18 +69,19 @@ func RunMigrations(pool *pgxpool.Pool) error {
 }
 
 type User struct {
-	ID          string    `json:"id"`
-	NickName    string    `json:"nick_name"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	Password    string    `json:"password"`
-	IsActive    bool      `json:"is_active"`
-	Role        string    `json:"role"`
-	PhoneNumber *string   `json:"phone_number"`
-	HasPassword bool      `json:"has_password"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
+	ID              string    `json:"id"`
+	NickName        string    `json:"nick_name"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	Email           string    `json:"email"`
+	Password        string    `json:"password"`
+	IsActive        bool      `json:"is_active"`
+	Role            string    `json:"role"`
+	PhoneNumber     *string   `json:"phone_number"`
+	HasPassword     bool      `json:"has_password"`
+	SuscriptionType *string   `json:"suscription_type"`
+	DateCreated     time.Time `json:"date_created"`
+	DateUpdated     time.Time `json:"date_updated"`
 }
 
 func toDomainUser(user *User) *domain.User {
@@ -89,18 +90,24 @@ func toDomainUser(user *User) *domain.User {
 		phoneNumber = *user.PhoneNumber
 	}
 
+	var suscriptionType string
+	if user.SuscriptionType != nil {
+		suscriptionType = *user.SuscriptionType
+	}
+
 	return &domain.User{
-		ID:          user.ID,
-		NickName:    user.NickName,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		Password:    user.Password,
-		IsActive:    user.IsActive,
-		Role:        user.Role,
-		PhoneNumber: phoneNumber,
-		HasPassword: user.HasPassword,
-		DateCreated: user.DateCreated,
-		DateUpdated: user.DateUpdated,
+		ID:              user.ID,
+		NickName:        user.NickName,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Password:        user.Password,
+		IsActive:        user.IsActive,
+		Role:            user.Role,
+		PhoneNumber:     phoneNumber,
+		HasPassword:     user.HasPassword,
+		SuscriptionType: suscriptionType,
+		DateCreated:     user.DateCreated,
+		DateUpdated:     user.DateUpdated,
 	}
 }

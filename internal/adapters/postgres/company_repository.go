@@ -32,3 +32,18 @@ func (r *companyRepository) GetCompanyIDByUserID(ctx context.Context, userID str
 	}
 	return &companyID, nil
 }
+
+func (r *companyRepository) GetSuscriptionTypeByCompanyID(ctx context.Context, companyID string) (*string, error) {
+	var suscriptionType *string
+	err := r.pool.QueryRow(ctx,
+		`SELECT suscription_type FROM companies WHERE company_id = $1 LIMIT 1`,
+		companyID,
+	).Scan(&suscriptionType)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get suscription type by company id: %w", err)
+	}
+	return suscriptionType, nil
+}

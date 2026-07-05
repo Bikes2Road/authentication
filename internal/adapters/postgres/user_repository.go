@@ -23,13 +23,17 @@ func NewUserRepository(pool *pgxpool.Pool) ports.UserRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	query := `
-		INSERT INTO users (id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO users (id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 	`
+	var suscriptionType *string
+	if user.SuscriptionType != "" {
+		suscriptionType = &user.SuscriptionType
+	}
 	_, err := r.pool.Exec(ctx, query,
 		user.ID, user.NickName, user.FirstName, user.LastName,
 		user.Email, user.Password, user.IsActive, user.Role,
-		user.PhoneNumber, user.HasPassword, time.Now(), time.Now(),
+		user.PhoneNumber, user.HasPassword, suscriptionType, time.Now(), time.Now(),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
@@ -38,12 +42,12 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 }
 
 func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
-	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated FROM users WHERE id = $1 LIMIT 1`
+	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated FROM users WHERE id = $1 LIMIT 1`
 	user := &User{}
 	err := r.pool.QueryRow(ctx, query, id).Scan(
 		&user.ID, &user.NickName, &user.FirstName, &user.LastName,
 		&user.Email, &user.Password, &user.IsActive, &user.Role,
-		&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
+		&user.PhoneNumber, &user.HasPassword, &user.SuscriptionType, &user.DateCreated, &user.DateUpdated,
 	)
 	if err != nil {
 		return nil, domain.ErrUserNotFound
@@ -52,12 +56,12 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 }
 
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated FROM users WHERE email = $1 LIMIT 1`
+	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated FROM users WHERE email = $1 LIMIT 1`
 	user := &User{}
 	err := r.pool.QueryRow(ctx, query, email).Scan(
 		&user.ID, &user.NickName, &user.FirstName, &user.LastName,
 		&user.Email, &user.Password, &user.IsActive, &user.Role,
-		&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
+		&user.PhoneNumber, &user.HasPassword, &user.SuscriptionType, &user.DateCreated, &user.DateUpdated,
 	)
 	if err != nil {
 		return nil, domain.ErrUserNotFound
@@ -66,12 +70,12 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 }
 
 func (r *userRepository) GetByNickName(ctx context.Context, nickName string) (*domain.User, error) {
-	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated FROM users WHERE nick_name = $1 LIMIT 1`
+	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated FROM users WHERE nick_name = $1 LIMIT 1`
 	user := &User{}
 	err := r.pool.QueryRow(ctx, query, nickName).Scan(
 		&user.ID, &user.NickName, &user.FirstName, &user.LastName,
 		&user.Email, &user.Password, &user.IsActive, &user.Role,
-		&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
+		&user.PhoneNumber, &user.HasPassword, &user.SuscriptionType, &user.DateCreated, &user.DateUpdated,
 	)
 	if err != nil {
 		return nil, domain.ErrUserNotFound
@@ -80,12 +84,12 @@ func (r *userRepository) GetByNickName(ctx context.Context, nickName string) (*d
 }
 
 func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickName string) (*domain.User, error) {
-	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated FROM users WHERE nick_name = $1 OR email = $2 LIMIT 1`
+	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated FROM users WHERE nick_name = $1 OR email = $2 LIMIT 1`
 	user := &User{}
 	err := r.pool.QueryRow(ctx, query, emailOrNickName, emailOrNickName).Scan(
 		&user.ID, &user.NickName, &user.FirstName, &user.LastName,
 		&user.Email, &user.Password, &user.IsActive, &user.Role,
-		&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
+		&user.PhoneNumber, &user.HasPassword, &user.SuscriptionType, &user.DateCreated, &user.DateUpdated,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -99,7 +103,7 @@ func (r *userRepository) GetByEmailOrNickName(ctx context.Context, emailOrNickNa
 }
 
 func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]*domain.User, error) {
-	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, date_created, date_updated FROM users ORDER BY date_created DESC LIMIT $1 OFFSET $2`
+	query := `SELECT id, nick_name, first_name, last_name, email, password, is_active, role, phone_number, has_password, suscription_type, date_created, date_updated FROM users ORDER BY date_created DESC LIMIT $1 OFFSET $2`
 	rows, err := r.pool.Query(ctx, query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all users: %w", err)
@@ -112,7 +116,7 @@ func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]*doma
 		err := rows.Scan(
 			&user.ID, &user.NickName, &user.FirstName, &user.LastName,
 			&user.Email, &user.Password, &user.IsActive, &user.Role,
-			&user.PhoneNumber, &user.HasPassword, &user.DateCreated, &user.DateUpdated,
+			&user.PhoneNumber, &user.HasPassword, &user.SuscriptionType, &user.DateCreated, &user.DateUpdated,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan user: %w", err)
@@ -123,11 +127,15 @@ func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]*doma
 }
 
 func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
-	query := `UPDATE users SET nick_name = $1, first_name = $2, last_name = $3, email = $4, password = $5, is_active = $6, role = $7, phone_number = $8, has_password = $9, date_updated = $10 WHERE id = $11`
+	query := `UPDATE users SET nick_name = $1, first_name = $2, last_name = $3, email = $4, password = $5, is_active = $6, role = $7, phone_number = $8, has_password = $9, suscription_type = $10, date_updated = $11 WHERE id = $12`
+	var suscriptionType *string
+	if user.SuscriptionType != "" {
+		suscriptionType = &user.SuscriptionType
+	}
 	result, err := r.pool.Exec(ctx, query,
 		user.NickName, user.FirstName, user.LastName, user.Email,
 		user.Password, user.IsActive, user.Role, user.PhoneNumber,
-		user.HasPassword, time.Now(), user.ID,
+		user.HasPassword, suscriptionType, time.Now(), user.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)

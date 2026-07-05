@@ -13,19 +13,21 @@ type UserAuth struct {
 }
 
 type User struct {
-	ID          string    `json:"id"`
-	NickName    string    `json:"nick_name"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	PhoneNumber string    `json:"phone_number"`
-	Password    string    `json:"password"`
-	HasPassword bool      `json:"has_password"`
-	IsActive    bool      `json:"is_active"`
-	Role        string    `json:"role"`
-	CompanyID   *string   `json:"company_id,omitempty"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
+	ID                     string    `json:"id"`
+	NickName               string    `json:"nick_name"`
+	FirstName              string    `json:"first_name"`
+	LastName               string    `json:"last_name"`
+	Email                  string    `json:"email"`
+	PhoneNumber            string    `json:"phone_number"`
+	Password               string    `json:"password"`
+	HasPassword            bool      `json:"has_password"`
+	IsActive               bool      `json:"is_active"`
+	Role                   string    `json:"role"`
+	SuscriptionType        string    `json:"suscription_type,omitempty"`
+	CompanyID              *string   `json:"company_id,omitempty"`
+	CompanySuscriptionType *string   `json:"company_suscription_type,omitempty"`
+	DateCreated            time.Time `json:"date_created"`
+	DateUpdated            time.Time `json:"date_updated"`
 }
 
 // IsValid verifica si el usuario es válido para autenticación

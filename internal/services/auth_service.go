@@ -21,12 +21,15 @@ func NewAuthService(jwtService ports.JWTService, userService ports.UserService) 
 	}
 }
 
-// resolveCompanyID fills user.CompanyID when the user has the company role.
+// resolveUserContext fills user.CompanyID and user.CompanySuscriptionType when
+// the user has the company role. It also clears both fields for non-company
+// users so the JWT claims don't leak stale values.
 // Returns an error only on database failure; users with role=company and no
 // associated company are allowed to authenticate with company_id=nil.
-func (s *authService) resolveCompanyID(ctx context.Context, user *domain.User) error {
+func (s *authService) resolveUserContext(ctx context.Context, user *domain.User) error {
 	if user.Role != domain.RoleCompany {
 		user.CompanyID = nil
+		user.CompanySuscriptionType = nil
 		return nil
 	}
 	companyID, err := s.userService.GetCompanyIDForUser(ctx, user.ID)
@@ -34,6 +37,17 @@ func (s *authService) resolveCompanyID(ctx context.Context, user *domain.User) e
 		return err
 	}
 	user.CompanyID = companyID
+
+	if companyID == nil {
+		user.CompanySuscriptionType = nil
+		return nil
+	}
+
+	suscriptionType, err := s.userService.GetCompanySuscriptionType(ctx, *companyID)
+	if err != nil {
+		return err
+	}
+	user.CompanySuscriptionType = suscriptionType
 	return nil
 }
 
@@ -45,8 +59,8 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 		return nil, err
 	}
 
-	if err := s.resolveCompanyID(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to resolve company id: %w", err)
+	if err := s.resolveUserContext(ctx, user); err != nil {
+		return nil, fmt.Errorf("failed to resolve user context: %w", err)
 	}
 
 	// Generar tokens
@@ -74,18 +88,20 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 }
 
 func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (*domain.LoginResponse, error) {
-	user := &domain.User{
-		ID:          req.ID,
-		Email:       req.Email,
-		NickName:    req.NickName,
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		Role:        req.Role,
-		HasPassword: req.HasPassword,
+	user, err := s.userService.GetUserByID(ctx, req.ID)
+	if err != nil {
+		if err == domain.ErrUserNotFound {
+			return nil, domain.ErrInvalidCredentials
+		}
+		return nil, fmt.Errorf("failed to load oauth user: %w", err)
 	}
 
-	if err := s.resolveCompanyID(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to resolve company id: %w", err)
+	if !user.IsActive {
+		return nil, domain.ErrUserInactive
+	}
+
+	if err := s.resolveUserContext(ctx, user); err != nil {
+		return nil, fmt.Errorf("failed to resolve user context: %w", err)
 	}
 
 	// Generar tokens
@@ -148,6 +164,10 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*d
 	// Verificar que el usuario siga activo
 	if !user.IsActive {
 		return nil, domain.ErrUserInactive
+	}
+
+	if err := s.resolveUserContext(ctx, user); err != nil {
+		return nil, fmt.Errorf("failed to resolve user context: %w", err)
 	}
 
 	// Generar nuevos tokens

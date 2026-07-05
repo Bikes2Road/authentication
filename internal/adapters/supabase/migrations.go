@@ -52,52 +52,63 @@ CREATE INDEX IF NOT EXISTS idx_users_date_created ON users(date_created);
 
 // User represents the database schema for Supabase
 type User struct {
-	ID          string    `json:"id"`
-	NickName    string    `json:"nick_name"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	Password    string    `json:"password"`
-	IsActive    bool      `json:"is_active"`
-	Role        string    `json:"role"`
-	PhoneNumber string    `json:"phone_number"`
-	HasPassword bool      `json:"has_password"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
+	ID              string    `json:"id"`
+	NickName        string    `json:"nick_name"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	Email           string    `json:"email"`
+	Password        string    `json:"password"`
+	IsActive        bool      `json:"is_active"`
+	Role            string    `json:"role"`
+	PhoneNumber     string    `json:"phone_number"`
+	HasPassword     bool      `json:"has_password"`
+	SuscriptionType *string   `json:"suscription_type"`
+	DateCreated     time.Time `json:"date_created"`
+	DateUpdated     time.Time `json:"date_updated"`
 }
 
 // toSupabaseUser converts domain.User to Supabase User
 func toSupabaseUser(user *domain.User) *User {
+	var suscriptionType *string
+	if user.SuscriptionType != "" {
+		suscriptionType = &user.SuscriptionType
+	}
 	return &User{
-		ID:          user.ID,
-		NickName:    user.NickName,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		Password:    user.Password,
-		IsActive:    user.IsActive,
-		Role:        user.Role,
-		PhoneNumber: user.PhoneNumber,
-		HasPassword: user.HasPassword,
-		DateCreated: user.DateCreated,
-		DateUpdated: user.DateUpdated,
+		ID:              user.ID,
+		NickName:        user.NickName,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Password:        user.Password,
+		IsActive:        user.IsActive,
+		Role:            user.Role,
+		PhoneNumber:     user.PhoneNumber,
+		HasPassword:     user.HasPassword,
+		SuscriptionType: suscriptionType,
+		DateCreated:     user.DateCreated,
+		DateUpdated:     user.DateUpdated,
 	}
 }
 
 // toDomainUser converts Supabase User to domain.User
 func toDomainUser(user *User) *domain.User {
+	var suscriptionType string
+	if user.SuscriptionType != nil {
+		suscriptionType = *user.SuscriptionType
+	}
 	return &domain.User{
-		ID:          user.ID,
-		NickName:    user.NickName,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		Password:    user.Password,
-		IsActive:    user.IsActive,
-		Role:        user.Role,
-		PhoneNumber: user.PhoneNumber,
-		HasPassword: user.HasPassword,
-		DateCreated: user.DateCreated,
-		DateUpdated: user.DateUpdated,
+		ID:              user.ID,
+		NickName:        user.NickName,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Password:        user.Password,
+		IsActive:        user.IsActive,
+		Role:            user.Role,
+		PhoneNumber:     user.PhoneNumber,
+		HasPassword:     user.HasPassword,
+		SuscriptionType: suscriptionType,
+		DateCreated:     user.DateCreated,
+		DateUpdated:     user.DateUpdated,
 	}
 }

@@ -32,6 +32,15 @@ func (s *userService) GetUserByEmailOrNickName(ctx context.Context, emailOrNickN
 	return user, nil
 }
 
+// GetUserByID retrieves a user by their ID
+func (s *userService) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	user, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by id: %w", err)
+	}
+	return user, nil
+}
+
 // VerifyUser checks if the provided credentials are valid and returns user info
 func (s *userService) VerifyUser(ctx context.Context, req ports.VerifyUserRequest) (*domain.User, error) {
 	user, err := s.repo.GetByEmailOrNickName(ctx, req.EmailOrNickName)
@@ -59,4 +68,14 @@ func (s *userService) GetCompanyIDForUser(ctx context.Context, userID string) (*
 		return nil, fmt.Errorf("failed to get company id for user: %w", err)
 	}
 	return companyID, nil
+}
+
+// GetCompanySuscriptionType returns the suscription_type of the company identified by companyID.
+// Returns (nil, nil) when the company has no suscription_type.
+func (s *userService) GetCompanySuscriptionType(ctx context.Context, companyID string) (*string, error) {
+	suscriptionType, err := s.companyRepo.GetSuscriptionTypeByCompanyID(ctx, companyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get company suscription type: %w", err)
+	}
+	return suscriptionType, nil
 }
