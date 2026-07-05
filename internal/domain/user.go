@@ -17,9 +17,9 @@ type UserAuth struct {
 // mediante un LEFT JOIN en el repositorio. Es nil cuando el usuario no tiene
 // empresa asociada.
 type CompanyInfo struct {
-	ID              string
-	Role            string
-	SuscriptionType string
+	ID              string `json:"company_id"`
+	Role            string `json:"company_role"`
+	SuscriptionType string `json:"suscription_type"`
 }
 
 type User struct {

@@ -401,11 +401,22 @@ const docTemplate = `{
         "github_com_bikes2road_authentication_internal_domain.UserInfo": {
             "type": "object",
             "properties": {
+                "company": {
+                    "description": "Información de empresa asociada al usuario (omitido si no tiene empresa)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_bikes2road_authentication_internal_domain.CompanyInfo"
+                        }
+                    ]
+                },
                 "email": {
                     "type": "string"
                 },
                 "first_name": {
                     "type": "string"
+                },
+                "has_password": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"
@@ -417,6 +428,22 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_bikes2road_authentication_internal_domain.CompanyInfo": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string"
+                },
+                "company_role": {
+                    "description": "Rol del usuario dentro de la empresa (admin o colaborator)",
+                    "type": "string"
+                },
+                "suscription_type": {
+                    "description": "Tipo de suscripción de la empresa (basic, standard, premium, none)",
                     "type": "string"
                 }
             }

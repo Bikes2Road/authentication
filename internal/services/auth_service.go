@@ -40,15 +40,6 @@ func (s *authService) resolveUserContext(user *domain.User) {
 	}
 }
 
-// companyIDPtr devuelve un puntero al ID de la empresa del usuario, o nil.
-func companyIDPtr(user *domain.User) *string {
-	if user.Company == nil {
-		return nil
-	}
-	id := user.Company.ID
-	return &id
-}
-
 // Login autentica un usuario y genera tokens JWT
 func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
@@ -75,7 +66,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
-			CompanyID:   companyIDPtr(user),
+			Company:     user.Company,
 		},
 		Tokens: tokens,
 	}
@@ -114,7 +105,7 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
-			CompanyID:   companyIDPtr(user),
+			Company:     user.Company,
 		},
 		Tokens: tokens,
 	}

@@ -18,14 +18,14 @@ type LoginResponse struct {
 
 // UserInfo representa la información del usuario en la respuesta
 type UserInfo struct {
-	ID          string  `json:"id"`
-	Email       string  `json:"email"`
-	FirstName   string  `json:"first_name"`
-	LastName    string  `json:"last_name"`
-	NickName    string  `json:"nick_name"`
-	Role        string  `json:"role"`
-	HasPassword bool    `json:"has_password"`
-	CompanyID   *string `json:"company_id,omitempty"`
+	ID          string       `json:"id"`
+	Email       string       `json:"email"`
+	FirstName   string       `json:"first_name"`
+	LastName    string       `json:"last_name"`
+	NickName    string       `json:"nick_name"`
+	Role        string       `json:"role"`
+	HasPassword bool         `json:"has_password"`
+	Company     *CompanyInfo `json:"company,omitempty"`
 }
 
 // ValidateRequest representa la solicitud de validación de token
