@@ -21,6 +21,25 @@ func NewAuthService(jwtService ports.JWTService, userService ports.UserService) 
 	}
 }
 
+// resolveUserContext limpia o conserva user.Company según la rol del usuario.
+// La información de empresa (ID, Role, SuscriptionType) ya viene embebida
+// en domain.User desde el repositorio mediante un LEFT JOIN. Esta función
+// garantiza que el claim Company solo se emita cuando es válido.
+//
+// Reglas:
+//   - role != "company"           → user.Company = nil
+//   - role == "company" pero sin ID → user.Company = nil
+//   - role == "company" con ID    → user.Company se conserva tal cual
+func (s *authService) resolveUserContext(user *domain.User) {
+	if user.Role != domain.RoleCompany {
+		user.Company = nil
+		return
+	}
+	if user.Company == nil || user.Company.ID == "" {
+		user.Company = nil
+	}
+}
+
 // Login autentica un usuario y genera tokens JWT
 func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*domain.LoginResponse, error) {
 	// Obtener usuario del servicio de usuarios
@@ -29,6 +48,8 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 		return nil, err
 	}
 
+	s.resolveUserContext(user)
+
 	// Generar tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)
 	if err != nil {
@@ -45,6 +66,7 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
+			Company:     user.Company,
 		},
 		Tokens: tokens,
 	}
@@ -53,15 +75,19 @@ func (s *authService) Login(ctx context.Context, req ports.VerifyUserRequest) (*
 }
 
 func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (*domain.LoginResponse, error) {
-	user := &domain.User{
-		ID:          req.ID,
-		Email:       req.Email,
-		NickName:    req.NickName,
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		Role:        req.Role,
-		HasPassword: req.HasPassword,
+	user, err := s.userService.GetUserByID(ctx, req.ID)
+	if err != nil {
+		if err == domain.ErrUserNotFound {
+			return nil, domain.ErrInvalidCredentials
+		}
+		return nil, fmt.Errorf("failed to load oauth user: %w", err)
 	}
+
+	if !user.IsActive {
+		return nil, domain.ErrUserInactive
+	}
+
+	s.resolveUserContext(user)
 
 	// Generar tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)
@@ -79,6 +105,7 @@ func (s *authService) OauthLogin(ctx context.Context, req ports.UserInfoOAuth) (
 			LastName:    user.LastName,
 			Role:        user.Role,
 			HasPassword: user.HasPassword,
+			Company:     user.Company,
 		},
 		Tokens: tokens,
 	}
@@ -123,6 +150,8 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*d
 	if !user.IsActive {
 		return nil, domain.ErrUserInactive
 	}
+
+	s.resolveUserContext(user)
 
 	// Generar nuevos tokens
 	tokens, err := s.jwtService.GenerateTokenPair(user)

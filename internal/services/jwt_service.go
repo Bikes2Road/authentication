@@ -51,11 +51,17 @@ func (s *jwtService) generateToken(user *domain.User, tokenType domain.TokenType
 	now := time.Now()
 	expirationTime := now.Add(expiration)
 
+	suscriptionType := user.SuscriptionType
+	if suscriptionType == "" {
+		suscriptionType = "none"
+	}
+
 	claims := &domain.JWTClaims{
-		UserID:   user.ID,
-		Email:    user.Email,
-		NickName: user.NickName,
-		Role:     user.Role,
+		UserID:          user.ID,
+		Email:           user.Email,
+		NickName:        user.NickName,
+		Role:            user.Role,
+		SuscriptionType: suscriptionType,
 		// Campos explícitos para swagger
 		ExpiresAt: expirationTime.Unix(),
 		IssuedAt:  now.Unix(),
@@ -71,6 +77,18 @@ func (s *jwtService) generateToken(user *domain.User, tokenType domain.TokenType
 			Subject:   user.ID,
 			ID:        fmt.Sprintf("%s-%s-%d", user.ID, tokenType, now.Unix()),
 		},
+	}
+
+	if user.Company != nil {
+		companySuscriptionType := user.Company.SuscriptionType
+		if companySuscriptionType == "" {
+			companySuscriptionType = "none"
+		}
+		claims.Company = &domain.JWTCompany{
+			ID:              user.Company.ID,
+			Role:            user.Company.Role,
+			SuscriptionType: companySuscriptionType,
+		}
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

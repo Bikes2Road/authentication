@@ -16,9 +16,7 @@ type userService struct {
 
 // NewUserService creates a new instance of UserService
 func NewUserService(repo ports.UserRepository) ports.UserService {
-	return &userService{
-		repo: repo,
-	}
+	return &userService{repo: repo}
 }
 
 // GetUserByEmailOrNickName retrieves a user by their email or nick name
@@ -26,6 +24,15 @@ func (s *userService) GetUserByEmailOrNickName(ctx context.Context, emailOrNickN
 	user, err := s.repo.GetByEmailOrNickName(ctx, emailOrNickName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by email or nick name: %w", err)
+	}
+	return user, nil
+}
+
+// GetUserByID retrieves a user by their ID
+func (s *userService) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	user, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 	return user, nil
 }

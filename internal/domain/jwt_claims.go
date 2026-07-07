@@ -4,12 +4,23 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// JWTCompany representa la información de empresa embebida en el JWT.
+// Solo se incluye en el token cuando el usuario tiene una empresa asociada
+// (es decir, cuando users.company_id no es NULL).
+type JWTCompany struct {
+	ID              string `json:"company_id"`
+	Role            string `json:"company_role"`
+	SuscriptionType string `json:"suscription_type"`
+}
+
 // JWTClaims representa los claims personalizados del JWT
 type JWTClaims struct {
-	UserID   string `json:"sub"`
-	Email    string `json:"email"`
-	NickName string `json:"nick_name"`
-	Role     string `json:"role"`
+	UserID          string      `json:"sub"`
+	Email           string      `json:"email"`
+	NickName        string      `json:"nick_name"`
+	Role            string      `json:"role"`
+	SuscriptionType string      `json:"suscription_type"`
+	Company         *JWTCompany `json:"company,omitempty"`
 	// Campos estándar de JWT
 	ExpiresAt int64  `json:"exp,omitempty"`
 	IssuedAt  int64  `json:"iat,omitempty"`

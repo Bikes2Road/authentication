@@ -33,11 +33,8 @@ func New(cfg *config.Config) (*Container, error) {
 		return nil, fmt.Errorf("failed to initialize postgres client: %w", err)
 	}
 
-	if err := postgres.RunMigrations(pool); err != nil {
-		return nil, fmt.Errorf("failed to run migrations: %w", err)
-	}
-
 	userRepository := postgres.NewUserRepository(pool)
+	_ = postgres.NewCompanyRepository(pool) // placeholder para expansiones futuras
 	userService := services.NewUserService(userRepository)
 
 	// Crear servicios

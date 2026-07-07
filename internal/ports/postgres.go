@@ -36,3 +36,8 @@ type UserRepository interface {
 	// ExistsByEmail checks if a user with the given email exists
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
+
+// CompanyRepository queda como marcador para expansiones futuras.
+// Actualmente la información de empresa se obtiene vía JOIN en UserRepository
+// y se embebe en domain.User.Company.
+type CompanyRepository interface{}
